@@ -4,6 +4,7 @@ var autoAim = function(game, variables) {
 	var items = variables.items;
 	var playerBarn = variables.playerBarn;
 	var binded = false;
+	var state = null;
 
 	if(!!!bullets || !!!items || !!! playerBarn) {
 		console.log("Cannot init autoaim");
@@ -11,7 +12,30 @@ var autoAim = function(game, variables) {
 	}
 
 	var options = {
-		captureEnemyMode: false
+		captureEnemyMode: false 
+	}
+
+	// Yeah i know that i can create single func with key arg
+	var pressOne = function() {
+		if(!game.scope.input.keys["49"]) {
+			// setTimeout(function() {
+				game.scope.input.keys["49"] = true;
+				setTimeout(function() {
+					delete game.scope.input.keys["49"]
+				}, 50);
+			// }, 10);
+		}
+	}
+
+	var pressTwo = function() {
+		if(!game.scope.input.keys["50"]) {
+			// setTimeout(function() {
+				game.scope.input.keys["50"] = true;
+				setTimeout(function() {
+					delete game.scope.input.keys["50"]
+				}, 50);
+			// }, 10);
+		}
 	}
 
 	var calculateRadianAngle = function(cx, cy, ex, ey) {
@@ -110,7 +134,6 @@ var autoAim = function(game, variables) {
 		var state = [];
 		for(var i = 0; i < 4; i++) {
 			state.push({
-				playerId: null, // Enemy id
 				distance: null,
 				radianAngle: null,
 				pos: {
@@ -125,11 +148,30 @@ var autoAim = function(game, variables) {
 			});
 		}
 		state.new = null;
+		state.player = {
+			nameText: {
+				visible: false,
+				style: {
+					fontSize: 22,
+					fill: "#00FFFF"
+				}
+			}
+		}; // enemy
 		state.averageTargetMousePosition = null;
+		state.captureIndex = 0; // 0 - 7 
 		return state;
 	}
 
-	var state = getNewState();
+	var stateNewTriggered = function(newStateNew) {
+		// from true to false
+		if(!newStateNew) {
+			state.player.nameText.visible = false;
+			state.player.nameText.style.fontSize = 22;
+			state.player.nameText.style.fill = "#00FFFF";
+			state.captureIndex = 0;
+		}
+	}
+
 	var updateState = function(detectedEnemies) {
 		var selfPos = getSelfPos();
 		var enemyDistances = [];
@@ -137,58 +179,60 @@ var autoAim = function(game, variables) {
 		var detectedEnemiesKeys = Object.keys(detectedEnemies);
 
 		if(!detectedEnemiesKeys.length) {
-			state.new = false;
+			if(state.new) {
+				state.new = false;
+				stateNewTriggered(false);
+			}
 			return;
 		} else {
-			state.new = true;
-			if(options.captureEnemyMode) {				
-				if(detectedEnemies[state[0].playerId]) {
-					var enemyPos = detectedEnemies[state[0].playerId].netData.pos;
-					var distance = calculateDistance(selfPos.x, selfPos.y, enemyPos.x, enemyPos.y);
-					var radianAngle = calculateRadianAngle(selfPos.x, selfPos.y, enemyPos.x, enemyPos.y);
+			// if(options.captureEnemyMode) {				
+				// if(detectedEnemies[state[0].playerId]) {
+				// 	var enemyPos = detectedEnemies[state[0].playerId].netData.pos;
+				// 	var distance = calculateDistance(selfPos.x, selfPos.y, enemyPos.x, enemyPos.y);
+				// 	var radianAngle = calculateRadianAngle(selfPos.x, selfPos.y, enemyPos.x, enemyPos.y);
 
-					state.unshift({
-						playerId: detectedEnemies[state[0].playerId],
-						distance: distance,
-						radianAngle: radianAngle,
-						pos: enemyPos,
-						timestamp: Date.now(),
-					});
-					state.pop();
-					state[0].targetMousePosition = calculateTargetMousePosition(state[0].pos, state[0].timestamp, state[1].pos, state[1].timestamp, state.distance);
-					state.averageTargetMousePosition = {
-						x: 0,
-						y: 0
-					};
+				// 	state.unshift({
+				// 		player: detectedEnemies[state[0].playerId],
+				// 		playerId: detectedEnemies[state[0].playerId].__id,
+				// 		distance: distance,
+				// 		radianAngle: radianAngle,
+				// 		pos: enemyPos,
+				// 		timestamp: Date.now(),
+				// 	});
+				// 	state.pop();
+				// 	state[0].targetMousePosition = calculateTargetMousePosition(state[0].pos, state[0].timestamp, state[1].pos, state[1].timestamp, state.distance);
+				// 	state.averageTargetMousePosition = {
+				// 		x: 0,
+				// 		y: 0
+				// 	};
 
-					for(var i = 0; i < state.length; i++) {
-						state.averageTargetMousePosition.x += state[i].targetMousePosition.x;
-						state.averageTargetMousePosition.y += state[i].targetMousePosition.y;
-					}
+				// 	for(var i = 0; i < state.length; i++) {
+				// 		state.averageTargetMousePosition.x += state[i].targetMousePosition.x;
+				// 		state.averageTargetMousePosition.y += state[i].targetMousePosition.y;
+				// 	}
 
-					state.averageTargetMousePosition.x /= state.length;
-					state.averageTargetMousePosition.y /= state.length;
+				// 	state.averageTargetMousePosition.x /= state.length;
+				// 	state.averageTargetMousePosition.y /= state.length;
 
-					return;
-				}
-			}
+				// 	return;
+				// }
+			// }
 
 			for(var i = 0; i < detectedEnemiesKeys.length; i++) {
 				var enemyPos = detectedEnemies[detectedEnemiesKeys[i]].netData.pos;
-				var distance = Math.sqrt(Math.pow(Math.abs(selfPos.x - enemyPos.x), 2) + Math.pow(Math.abs(selfPos.y - enemyPos.y), 2));
+				var distance = Math.sqrt(Math.pow(selfPos.x - enemyPos.x, 2) + Math.pow(selfPos.y - enemyPos.y, 2));
 				var radianAngle = calculateRadianAngle(selfPos.x, selfPos.y, enemyPos.x, enemyPos.y);
 
 				enemyDistances.push(distance);
 				enemyRadianAngles.push(radianAngle);	
 			}
 
-			var minimalDistanceEnemyIndex = getMinimalDistanceIndex(enemyDistances);
+			var targetEnemyIndex = getMinimalDistanceIndex(enemyDistances);
 
 			state.unshift({
-				playerId: detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].__id,
-				distance: enemyDistances[minimalDistanceEnemyIndex],
-				radianAngle: enemyRadianAngles[minimalDistanceEnemyIndex],
-				pos: detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].netData.pos,
+				distance: enemyDistances[targetEnemyIndex],
+				radianAngle: enemyRadianAngles[targetEnemyIndex],
+				pos: detectedEnemies[detectedEnemiesKeys[targetEnemyIndex]].netData.pos,
 				timestamp: Date.now(),
 			});
 			state.pop();
@@ -205,7 +249,24 @@ var autoAim = function(game, variables) {
 
 			state.averageTargetMousePosition.x /= state.length;
 			state.averageTargetMousePosition.y /= state.length;
+
+			state.player.nameText.visible = false;
+			state.player.nameText.style.fontSize = 22;
+			state.player.nameText.style.fill = "#00FFFF";
+
+			state.player = detectedEnemies[detectedEnemiesKeys[targetEnemyIndex]];
+
+			state.player.nameText.visible = true;
+			state.player.nameText.style.fontSize = 100;
+			state.player.nameText.style.fill = "#D50000";
 			
+			if(state.new) {
+				return;
+			}
+
+			state.new = true;
+			stateNewTriggered(true);
+
 			return;
 			// todo: check equals playerId in all items of array
 		}
@@ -216,10 +277,24 @@ var autoAim = function(game, variables) {
 
 	var defaultBOnMouseDown = function(event) {};
 	var defaultBOnMouseMove = function(event) {};
+	var defaultBOnMouseWheel = function(event) {};
 
 	var mouseListener = {
 		mousedown: function(event) {
-			if(!event.button && state.new) {
+			if(event.button === 2) {
+				if(game.scope.activePlayer.curWeapIdx) {
+					pressOne();
+					return;
+				}
+				
+				if(!game.scope.activePlayer.curWeapIdx) {
+					pressTwo();
+					return;
+				}
+			}
+
+			if(((event.button === 0) || (event.button === 2)) && state.new) {
+
 				game.scope.input.mousePos = state.averageTargetMousePosition;
 				// ???
 				game.scope.input.mouseButtonOld = false;
@@ -231,18 +306,26 @@ var autoAim = function(game, variables) {
 		mousemove: function(event) {
 			if(!state.new) {
 				defaultBOnMouseMove(event);
-			}
+			} // else add a input.mousepos = cursorpos
+		},
+		wheel: function(event) {
+			var delta = event.deltaY || event.detail || event.wheelDelta;
+			state.captureIndex += Math.sign(delta);
+			state.captureIndex = Math.abs(state.captureIndex);
+			state.captureIndex %= 8;
 		}
 	}
 
 	var addMouseListener = function() {
 		window.addEventListener("mousedown", mouseListener.mousedown);
 		window.addEventListener("mousemove", mouseListener.mousemove);
+		window.addEventListener('wheel', mouseListener.wheel);
 	}
 
 	var removeMouseListener = function() {
 		window.removeEventListener("mousedown", mouseListener.mousedown);
 		window.removeEventListener("mousemove", mouseListener.mousemove);
+		window.removeEventListener('wheel', mouseListener.wheel);
 	}
 
 	var spaceKeyListeners = {
@@ -285,21 +368,30 @@ var autoAim = function(game, variables) {
 	}
 
 	var bind = function() {
+		state = getNewState();
+
 		defaultBOnMouseDown = game.scope.input.bOnMouseDown;
 		defaultBOnMouseMove = game.scope.input.bOnMouseMove;
+		defaultBOnMouseWheel = game.scope.input.bOnMouseWheel;
 
 		defaultPlayerBarnRenderFunction = playerBarn.prototype.render;
 		playerBarn.prototype.render = function(e) {
 			playerBarnRenderContext = this;
-			defaultPlayerBarnRenderFunction.call(playerBarnRenderContext, e);
+
 			updateState(detectEnemies());
+						
 			if(state.new) {
 				game.scope.input.mousePos = state.averageTargetMousePosition;
 			}
+
+			defaultPlayerBarnRenderFunction.call(playerBarnRenderContext, e);
 		};
 
 		window.removeEventListener("mousedown", game.scope.input.bOnMouseDown);
 		window.removeEventListener("mousemove", game.scope.input.bOnMouseMove);
+		window.removeEventListener("wheel", game.scope.input.bOnMouseWheel);
+
+		game.scope.input.bOnMouseWheel = function(e) {};
 
 		removeMouseListener();
 		removeSpaceKeyListener();
@@ -309,7 +401,7 @@ var autoAim = function(game, variables) {
 		addSpaceKeyListener();
 		addOKeyListener();
 
-		binded = true;
+		binded = true;		
 	}
 
 	var unbind = function() {
@@ -317,11 +409,15 @@ var autoAim = function(game, variables) {
 		removeSpaceKeyListener();
 		removeOKeyListener();
 
+		game.scope.input.bOnMouseWheel = defaultBOnMouseWheel;
+
 		window.removeEventListener("mousedown", defaultBOnMouseDown);
-		window.removeEventListener("mousemove", defaultBOnMouseMove);		
+		window.removeEventListener("mousemove", defaultBOnMouseMove);
+		window.removeEventListener("wheel", defaultBOnMouseWheel);
 
 		window.addEventListener("mousedown", defaultBOnMouseDown);
 		window.addEventListener("mousemove", defaultBOnMouseMove);
+		window.addEventListener("wheel", defaultBOnMouseWheel);
 
 		playerBarn.prototype.render = defaultPlayerBarnRenderFunction;
 

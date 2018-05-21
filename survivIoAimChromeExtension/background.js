@@ -100,6 +100,17 @@ function patchAppCode(appCode) {
 			name: "Smoke gernage alpha",
 			from: /sprite.tint=([a-z]).tint,([a-z]).sprite.alpha=[a-z],([a-z]).sprite.visible=([a-z]).active/g,
 			to: 'sprite.tint=$1.tint,$2.sprite.alpha=0.1,$3.sprite.visible=$4.active'
+		},
+
+		{
+			name: "Wheeldown emotes",
+			from: /([a-z])\(document\).on\(\"mousedown\",function\(([a-z])\){\(\"which\"in e\?3==e.which/g,
+			to: '$1(document).on("mousedown",function($2){("which"in e?2==e.which'
+		},
+		{
+			name: "Wheelup emotes",
+			from: /([a-z])\(document\).on\("mouseup",function\(([a-z])\){3==e.which/g,
+			to: '$1(document).on("mouseup",function($2){2==e.which'
 		}
 	];
 

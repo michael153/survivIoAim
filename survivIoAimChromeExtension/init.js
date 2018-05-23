@@ -189,7 +189,36 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		zoomRadiusManagerEnableCb: zoomRadiusManagerEnableCb
 	});
 
+	var lShiftKeyListener = {
+		keydown: function(event) {
+			if(event.which == 16) {
+				if(autoAim.isBinded()) {
+					autoAim.unbind();
+				}
+			}
+		},
+		keyup: function(event) {
+			if(event.which == 16) {
+				if(options.autoAimEnabled && !autoAim.isBinded()) {
+					autoAim.bind();
+				}
+			}
+		}
+	}
+
+	var addLShiftKeyListener = function() {
+		window.addEventListener("keydown", lShiftKeyListener.keydown);
+		window.addEventListener("keyup", lShiftKeyListener.keyup);
+	}
+
+	var removeLShiftKeyListener = function() {
+		window.removeEventListener("keydown", lShiftKeyListener.keydown);
+		window.removeEventListener("keyup", lShiftKeyListener.keyup);
+	}
+
 	var bindCheatListeners = function() {
+		addLShiftKeyListener();
+
 		if(options.autoAimEnabled && !autoAim.isBinded()) {
 			autoAim.bind();
 		}
@@ -212,6 +241,8 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 	}
 
 	var unbindCheatListeners = function() {
+		removeLShiftKeyListener();
+
 		if(menu.isBinded()) {
 			menu.unbind();
 		}

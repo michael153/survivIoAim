@@ -277,7 +277,7 @@ var autoAim = function(game, variables) {
 
 	var defaultBOnMouseDown = function(event) {};
 	var defaultBOnMouseMove = function(event) {};
-	var defaultBOnMouseWheel = function(event) {};
+	// var defaultBOnMouseWheel = function(event) {};
 
 	var mouseListener = {
 		mousedown: function(event) {
@@ -307,25 +307,25 @@ var autoAim = function(game, variables) {
 			if(!state.new) {
 				defaultBOnMouseMove(event);
 			} // else add a input.mousepos = cursorpos
-		},
-		wheel: function(event) {
-			var delta = event.deltaY || event.detail || event.wheelDelta;
-			state.captureIndex += Math.sign(delta);
-			state.captureIndex = Math.abs(state.captureIndex);
-			state.captureIndex %= 8;
 		}
+		// wheel: function(event) {
+		// 	var delta = event.deltaY || event.detail || event.wheelDelta;
+		// 	state.captureIndex += Math.sign(delta);
+		// 	state.captureIndex = Math.abs(state.captureIndex);
+		// 	state.captureIndex %= 8;
+		// }
 	}
 
 	var addMouseListener = function() {
 		window.addEventListener("mousedown", mouseListener.mousedown);
 		window.addEventListener("mousemove", mouseListener.mousemove);
-		window.addEventListener('wheel', mouseListener.wheel);
+		// window.addEventListener('wheel', mouseListener.wheel);
 	}
 
 	var removeMouseListener = function() {
 		window.removeEventListener("mousedown", mouseListener.mousedown);
 		window.removeEventListener("mousemove", mouseListener.mousemove);
-		window.removeEventListener('wheel', mouseListener.wheel);
+		// window.removeEventListener('wheel', mouseListener.wheel);
 	}
 
 	var spaceKeyListeners = {
@@ -372,7 +372,7 @@ var autoAim = function(game, variables) {
 
 		defaultBOnMouseDown = game.scope.input.bOnMouseDown;
 		defaultBOnMouseMove = game.scope.input.bOnMouseMove;
-		defaultBOnMouseWheel = game.scope.input.bOnMouseWheel;
+		// defaultBOnMouseWheel = game.scope.input.bOnMouseWheel;
 
 		defaultPlayerBarnRenderFunction = playerBarn.prototype.render;
 		playerBarn.prototype.render = function(e) {
@@ -389,9 +389,9 @@ var autoAim = function(game, variables) {
 
 		window.removeEventListener("mousedown", game.scope.input.bOnMouseDown);
 		window.removeEventListener("mousemove", game.scope.input.bOnMouseMove);
-		window.removeEventListener("wheel", game.scope.input.bOnMouseWheel);
+		// window.removeEventListener("wheel", game.scope.input.bOnMouseWheel);
 
-		game.scope.input.bOnMouseWheel = function(e) {};
+		// game.scope.input.bOnMouseWheel = function(e) {};
 
 		removeMouseListener();
 		removeSpaceKeyListener();
@@ -409,15 +409,15 @@ var autoAim = function(game, variables) {
 		removeSpaceKeyListener();
 		removeOKeyListener();
 
-		game.scope.input.bOnMouseWheel = defaultBOnMouseWheel;
+		// game.scope.input.bOnMouseWheel = defaultBOnMouseWheel;
 
 		window.removeEventListener("mousedown", defaultBOnMouseDown);
 		window.removeEventListener("mousemove", defaultBOnMouseMove);
-		window.removeEventListener("wheel", defaultBOnMouseWheel);
+		// window.removeEventListener("wheel", defaultBOnMouseWheel);
 
 		window.addEventListener("mousedown", defaultBOnMouseDown);
 		window.addEventListener("mousemove", defaultBOnMouseMove);
-		window.addEventListener("wheel", defaultBOnMouseWheel);
+		// window.addEventListener("wheel", defaultBOnMouseWheel);
 
 		playerBarn.prototype.render = defaultPlayerBarnRenderFunction;
 

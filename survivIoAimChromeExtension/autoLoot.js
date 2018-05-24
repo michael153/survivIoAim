@@ -31,8 +31,8 @@ var autoLoot = function(game, variables) {
 				game.scope.input.keys["70"] = true;
 				setTimeout(function() {
 					delete game.scope.input.keys["70"]
-				}, 50);
-			}, 50);
+				}, 90);
+			}, 0);
 		}
 	}
 

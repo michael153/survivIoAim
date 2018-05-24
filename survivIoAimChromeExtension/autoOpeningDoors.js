@@ -25,7 +25,8 @@ var autoOpeningDoors = function(game, emitActionCb, interactionEmitter) {
 			if(interactionEmitter.scope) {
 				switch(interactionEmitter.scope.__type) {
 					case interactionTypes.Obstacle:
-						if(interactionEmitter.scope.hasOwnProperty('door')) {
+						if( interactionEmitter.scope.hasOwnProperty('door') &&
+							!interactionEmitter.scope.door.open) {
 							pressF();
 						}
 					break;

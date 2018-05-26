@@ -11,30 +11,28 @@ var autoAim = function(game, variables) {
 		return;
 	}
 
-	var options = {
-		captureEnemyMode: false 
-	}
+	var options = {};
 
 	// Yeah i know that i can create single func with key arg
 	var pressOne = function() {
 		if(!game.scope.input.keys["49"]) {
-			// setTimeout(function() {
+			setTimeout(function() {
 				game.scope.input.keys["49"] = true;
 				setTimeout(function() {
 					delete game.scope.input.keys["49"]
 				}, 50);
-			// }, 10);
+			}, 0);
 		}
 	}
 
 	var pressTwo = function() {
 		if(!game.scope.input.keys["50"]) {
-			// setTimeout(function() {
+			setTimeout(function() {
 				game.scope.input.keys["50"] = true;
 				setTimeout(function() {
 					delete game.scope.input.keys["50"]
 				}, 50);
-			// }, 10);
+			}, 0);
 		}
 	}
 
@@ -53,6 +51,10 @@ var autoAim = function(game, variables) {
 
 	var getSelfPos = function() {
 		return game.scope.activePlayer.pos;
+	}
+
+	var getMousePos = function() {
+		return state.mousePos;
 	}
 
 	// todo: not detect on different levels
@@ -158,7 +160,11 @@ var autoAim = function(game, variables) {
 			}
 		}; // enemy
 		state.averageTargetMousePosition = null;
-		state.captureIndex = 0; // 0 - 7 
+		state.mousePos = {
+			x: game.scope.camera.pos.x,
+			y: game.scope.camera.pos.y
+		};
+
 		return state;
 	}
 
@@ -168,14 +174,15 @@ var autoAim = function(game, variables) {
 			state.player.nameText.visible = false;
 			state.player.nameText.style.fontSize = 22;
 			state.player.nameText.style.fill = "#00FFFF";
-			state.captureIndex = 0;
 		}
 	}
 
 	var updateState = function(detectedEnemies) {
 		var selfPos = getSelfPos();
-		var enemyDistances = [];
-		var enemyRadianAngles = [];
+		var mousePos = getMousePos();
+		var enemySelfDistances = [];
+		var enemyMouseDistances = [];
+		var enemySelfRadianAngles = [];
 		var detectedEnemiesKeys = Object.keys(detectedEnemies);
 
 		if(!detectedEnemiesKeys.length) {
@@ -185,53 +192,23 @@ var autoAim = function(game, variables) {
 			}
 			return;
 		} else {
-			// if(options.captureEnemyMode) {				
-				// if(detectedEnemies[state[0].playerId]) {
-				// 	var enemyPos = detectedEnemies[state[0].playerId].netData.pos;
-				// 	var distance = calculateDistance(selfPos.x, selfPos.y, enemyPos.x, enemyPos.y);
-				// 	var radianAngle = calculateRadianAngle(selfPos.x, selfPos.y, enemyPos.x, enemyPos.y);
-
-				// 	state.unshift({
-				// 		player: detectedEnemies[state[0].playerId],
-				// 		playerId: detectedEnemies[state[0].playerId].__id,
-				// 		distance: distance,
-				// 		radianAngle: radianAngle,
-				// 		pos: enemyPos,
-				// 		timestamp: Date.now(),
-				// 	});
-				// 	state.pop();
-				// 	state[0].targetMousePosition = calculateTargetMousePosition(state[0].pos, state[0].timestamp, state[1].pos, state[1].timestamp, state.distance);
-				// 	state.averageTargetMousePosition = {
-				// 		x: 0,
-				// 		y: 0
-				// 	};
-
-				// 	for(var i = 0; i < state.length; i++) {
-				// 		state.averageTargetMousePosition.x += state[i].targetMousePosition.x;
-				// 		state.averageTargetMousePosition.y += state[i].targetMousePosition.y;
-				// 	}
-
-				// 	state.averageTargetMousePosition.x /= state.length;
-				// 	state.averageTargetMousePosition.y /= state.length;
-
-				// 	return;
-				// }
-			// }
-
 			for(var i = 0; i < detectedEnemiesKeys.length; i++) {
 				var enemyPos = detectedEnemies[detectedEnemiesKeys[i]].netData.pos;
-				var distance = Math.sqrt(Math.pow(selfPos.x - enemyPos.x, 2) + Math.pow(selfPos.y - enemyPos.y, 2));
-				var radianAngle = calculateRadianAngle(selfPos.x, selfPos.y, enemyPos.x, enemyPos.y);
 
-				enemyDistances.push(distance);
-				enemyRadianAngles.push(radianAngle);	
+				var selfDistance = Math.sqrt(Math.pow(selfPos.x - enemyPos.x, 2) + Math.pow(selfPos.y - enemyPos.y, 2));
+				var mouseDistance = Math.sqrt(Math.pow(mousePos.x - enemyPos.x, 2) + Math.pow(mousePos.y - enemyPos.y, 2));
+				var selfRadianAngle = calculateRadianAngle(selfPos.x, selfPos.y, enemyPos.x, enemyPos.y);
+
+				enemySelfDistances.push(selfDistance);
+				enemyMouseDistances.push(mouseDistance);
+				enemySelfRadianAngles.push(selfRadianAngle);
 			}
 
-			var targetEnemyIndex = getMinimalDistanceIndex(enemyDistances);
+			var targetEnemyIndex = getMinimalDistanceIndex(enemyMouseDistances);
 
 			state.unshift({
-				distance: enemyDistances[targetEnemyIndex],
-				radianAngle: enemyRadianAngles[targetEnemyIndex],
+				distance: enemySelfDistances[targetEnemyIndex],
+				radianAngle: enemySelfRadianAngles[targetEnemyIndex],
 				pos: detectedEnemies[detectedEnemiesKeys[targetEnemyIndex]].netData.pos,
 				timestamp: Date.now(),
 			});
@@ -304,9 +281,14 @@ var autoAim = function(game, variables) {
 			}
 		},
 		mousemove: function(event) {
+			state.mousePos = game.scope.camera.screenToPoint({
+				x: event.clientX,
+				y: event.clientY
+			});
+
 			if(!state.new) {
 				defaultBOnMouseMove(event);
-			} // else add a input.mousepos = cursorpos
+			}
 		}
 		// wheel: function(event) {
 		// 	var delta = event.deltaY || event.detail || event.wheelDelta;
@@ -351,6 +333,7 @@ var autoAim = function(game, variables) {
 		window.removeEventListener("keyup", spaceKeyListeners.keyup);
 	}
 
+	// not using
 	var oKeyListener = {
 		keyup: function(event) {
 			if(event.which == 79) {
@@ -395,11 +378,9 @@ var autoAim = function(game, variables) {
 
 		removeMouseListener();
 		removeSpaceKeyListener();
-		removeOKeyListener();
 
 		addMouseListener();
 		addSpaceKeyListener();
-		addOKeyListener();
 
 		binded = true;		
 	}
@@ -407,7 +388,6 @@ var autoAim = function(game, variables) {
 	var unbind = function() {
 		removeMouseListener();
 		removeSpaceKeyListener();
-		removeOKeyListener();
 
 		// game.scope.input.bOnMouseWheel = defaultBOnMouseWheel;
 

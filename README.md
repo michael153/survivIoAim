@@ -11,8 +11,11 @@ Update: Press O key for enable/disable "capture mode". In this mode if you have 
 Update: Auto loot and auto opening door added.  
 Update: Zoom radius regulation by `Left shift` + `Mouse wheel`  
 Update: Game menu added. Press `Z` key to enable the cheat and `Esc` to show menu.  
-Update: Emotes available on mouse wheel click (instead right mouse key).  
 Update: Fast weapon changing, just click right mouse key.  
+Update: Emotes available on mouse wheel click (instead right mouse key).  
+Update: If you need to temporary disable auto aim, just hold `Left shift` key.  
+Update: To throw out the loot, hold `Left shift` and then click right mouse key on loot.  
+Update: Now the auto aim will aim for enemy, closest to mouse pointer #19.  
 
 All actions you take at your own risk. The author is not responsible for the consequences of your actions.
 
@@ -30,7 +33,10 @@ All actions you take at your own risk. The author is not responsible for the con
 Обновление: Автоматическое открытие дверей и сборка лута.  
 Обновление: Для регулирования радиуса зума используйте клавиши `Left shift` + `Mouse wheel`  
 Обновление: Добавлено игровое меню. Чтобы включить меню во время игры нажмите `Z` для включение чита, после чего нажмите `Esc`   
-Обновление: Эмоции доступны по нажатию колесика мыши (вместо правой кнопки мыши).  
 Обновление: Быстрая смена оружия нажатием правой кнопки мыши.  
+Обновление: Эмоции доступны по нажатию колесика мыши (вместо правой кнопки мыши).  
+Обновление: Чтобы временно отключить автоаим зажмите и удерживайте `Left shift`.  
+Обновление: Чтобы выбросить лут, зажмите `Left shift` и затем нажмите правой кнопокй на иконку лута.  
+Обновление: Теперь авто аим целится во врага, который расположен ближе всего к курсору #19.  
 
 Все действия описанные в этой инструкции вы выполняете на свой страх и риск. Автор не несет ответственности за последствия ваших действий.

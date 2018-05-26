@@ -90,7 +90,7 @@ var autoLoot = function(game, variables) {
 			};
 
 			/*
-				Guns
+				Guns and skins
 			*/
 			if(game.scope.activePlayer.localData.weapons[0].name == "" ||
 			   game.scope.activePlayer.localData.weapons[1].name == "") {

@@ -194,6 +194,7 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 			if(event.which == 16) {
 				if(autoAim.isBinded()) {
 					autoAim.unbind();
+					autoLoot.unbind();
 				}
 			}
 		},
@@ -201,6 +202,7 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 			if(event.which == 16) {
 				if(options.autoAimEnabled && !autoAim.isBinded()) {
 					autoAim.bind();
+					autoLoot.bind();
 				}
 			}
 		}

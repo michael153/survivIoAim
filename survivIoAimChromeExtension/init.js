@@ -27,10 +27,12 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		ceilingTrancparency: 0.5,
 		fragGernageSize: 0.31,
 		fragGernageColor: 16711680,
+		defaultFragGernageEnabled: false,
 		autoAimEnabled: true,
 		autoLootEnabled: true,
 		autoOpeningDoorsEnabled: true,
-		zoomRadiusManagerEnabled: true
+		zoomRadiusManagerEnabled: true,
+		targetEnemyNicknameVisibility: true
 	}
 
 	var defsParticles = findVariable("Defs", exports);
@@ -60,9 +62,17 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 	var particlesTransparencyCb = null;
 	var ceilingTrancparencyCb = null;
 	var gernagePropertiesCb = null;
+	var defaultGernagePropertiesCb = null;
+
+	// Default gernage properties
+	var defaultFragGernageTint = null;
+	var defaultFragGernageScale = null;
 
 	if(!!defsParticles || !!items) {
 		// Gernage size and color
+		defaultFragGernageTint = items.frag.worldImg.tint;
+		defaultFragGernageScale	= items.frag.worldImg.scale;
+
 		items.frag.worldImg.tint = options.fragGernageColor;
 		items.frag.worldImg.scale = options.fragGernageSize;
 
@@ -116,6 +126,19 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 			items.frag.worldImg.tint = color;
 			items.frag.worldImg.scale = size;
 		}
+
+		defaultGernagePropertiesCb = function() {
+			options.fragGernageSize = defaultFragGernageScale;
+			options.fragGernageColor = defaultFragGernageTint;
+
+			items.frag.worldImg.scale = defaultFragGernageScale;
+			items.frag.worldImg.tint = defaultFragGernageTint;
+
+			return {
+				defaultFragGernageScale: defaultFragGernageScale,
+				defaultFragGernageTint: defaultFragGernageTint
+			}
+		}
 	}
 
 	// setInterval(function(){if(game.scope && game.scope.activePlayer){
@@ -127,8 +150,20 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 			autoAim.unbind();
 			options.autoAimEnabled = false;
 		} else if(!autoAim.isBinded() && !options.autoAimEnabled) {
-			autoAim.bind();
+			autoAim.bind({
+				targetEnemyNicknameVisibility: options.targetEnemyNicknameVisibility
+			});
 			options.autoAimEnabled = true;
+		}
+	}
+
+	var autoAimTargetEnemyVisibilityCb = function() {
+		options.targetEnemyNicknameVisibility = !options.targetEnemyNicknameVisibility;
+		if(autoAim.isBinded() && options.autoAimEnabled) {
+			autoAim.unbind();
+			autoAim.bind({
+				targetEnemyNicknameVisibility: options.targetEnemyNicknameVisibility
+			});
 		}
 	}
 
@@ -183,7 +218,11 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		particlesTransparencyCb: particlesTransparencyCb,
 		ceilingTrancparencyCb: ceilingTrancparencyCb,
 		gernagePropertiesCb: gernagePropertiesCb,
+		defaultGernagePropertiesCb: defaultGernagePropertiesCb,
+
 		autoAimEnableCb: autoAimEnableCb,
+		autoAimTargetEnemyVisibilityCb: autoAimTargetEnemyVisibilityCb,
+		
 		autoLootEnableCb: autoLootEnableCb,
 		autoOpeningDoorsEnableCb: autoOpeningDoorsEnableCb,
 		zoomRadiusManagerEnableCb: zoomRadiusManagerEnableCb
@@ -203,10 +242,14 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		keyup: function(event) {
 			if(event.which == 16) {
 				if(options.autoAimEnabled && !autoAim.isBinded()) {
-					autoAim.bind();
+					autoAim.bind({
+						targetEnemyNicknameVisibility: options.targetEnemyNicknameVisibility
+					});
 				}
 				if(options.autoLootEnabled && !autoLoot.isBinded()) {
-					autoLoot.bind();
+					autoLoot.bind({
+						targetEnemyNicknameVisibility: options.targetEnemyNicknameVisibility
+					});
 				}
 			}
 		}
@@ -226,7 +269,9 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		addLShiftKeyListener();
 
 		if(options.autoAimEnabled && !autoAim.isBinded()) {
-			autoAim.bind();
+			autoAim.bind({
+				targetEnemyNicknameVisibility: options.targetEnemyNicknameVisibility
+			});
 		}
 
 		if(options.autoLootEnabled && !autoLoot.isBinded()) {

@@ -11,7 +11,9 @@ var autoAim = function(game, variables) {
 		return;
 	}
 
-	var options = {};
+	var options = {
+		targetEnemyNicknameVisibility: true
+	};
 
 	// Yeah i know that i can create single func with key arg
 	var pressOne = function() {
@@ -85,7 +87,7 @@ var autoAim = function(game, variables) {
 		return enemyDistances.indexOf(Math.min.apply(null, enemyDistances));
 	}
 
-	var calculateTargetMousePosition = function(enemyPos, enemyPosTimestamp,  prevEnemyPos, prevEnemyPosTimestamp, distance) {
+	var calculateTargetMousePosition = function(enemyPos, enemyPosTimestamp, prevEnemyPos, prevEnemyPosTimestamp, distance) {
 		var bulletSpeed = 0;
 		var bulletApproachTime = Infinity;
 		
@@ -168,12 +170,22 @@ var autoAim = function(game, variables) {
 		return state;
 	}
 
+	var showTargetEnemyNick = function() {
+		state.player.nameText.visible = true;
+		state.player.nameText.style.fontSize = 100;
+		state.player.nameText.style.fill = "#D50000";
+	}
+
+	var hideTargetEnemyNick = function() {
+		state.player.nameText.visible = false;
+		state.player.nameText.style.fontSize = 22;
+		state.player.nameText.style.fill = "#00FFFF";
+	}
+
 	var stateNewTriggered = function(newStateNew) {
 		// from true to false
 		if(!newStateNew) {
-			state.player.nameText.visible = false;
-			state.player.nameText.style.fontSize = 22;
-			state.player.nameText.style.fill = "#00FFFF";
+			options.targetEnemyNicknameVisibility && hideTargetEnemyNick();
 		}
 	}
 
@@ -227,22 +239,17 @@ var autoAim = function(game, variables) {
 			state.averageTargetMousePosition.x /= state.length;
 			state.averageTargetMousePosition.y /= state.length;
 
-			state.player.nameText.visible = false;
-			state.player.nameText.style.fontSize = 22;
-			state.player.nameText.style.fill = "#00FFFF";
+			options.targetEnemyNicknameVisibility && hideTargetEnemyNick();
 
 			state.player = detectedEnemies[detectedEnemiesKeys[targetEnemyIndex]];
-
-			state.player.nameText.visible = true;
-			state.player.nameText.style.fontSize = 100;
-			state.player.nameText.style.fill = "#D50000";
+			
+			options.targetEnemyNicknameVisibility && showTargetEnemyNick();
 			
 			if(state.new) {
 				return;
 			}
 
 			state.new = true;
-			stateNewTriggered(true);
 
 			return;
 			// todo: check equals playerId in all items of array
@@ -350,7 +357,8 @@ var autoAim = function(game, variables) {
 		window.removeEventListener("keyup", oKeyListener.keyup);
 	}
 
-	var bind = function() {
+	var bind = function(opt) {
+		options.targetEnemyNicknameVisibility = opt.targetEnemyNicknameVisibility;
 		state = getNewState();
 
 		defaultBOnMouseDown = game.scope.input.bOnMouseDown;

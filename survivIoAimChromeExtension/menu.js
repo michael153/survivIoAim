@@ -12,8 +12,10 @@ var menu = function(options, callbacks) {
 
 		var fragGernageColorSlider = document.createElement('div');
 		var fragGernageSizeSlider = document.createElement('div');
+		var defaultFragGernagePropertiesButton = document.createElement('div');
 
 		var autoAimEnabledCheckbox = document.createElement('div');
+		var autoAimTargetNameVisibilityCheckbox = document.createElement('div');
 		var autoLootEnabledCheckbox = document.createElement('div');
 		var autoOpeningDoorsEnabledCheckbox = document.createElement('div');
 		var zoomRadiusManagerEnabledCheckbox = document.createElement('div');
@@ -64,9 +66,10 @@ var menu = function(options, callbacks) {
 			ceilingTrancparencySlider.appendChild(input);
 		}
 
-		if(callbacks.gernagePropertiesCb) {
+		if(callbacks.gernagePropertiesCb && callbacks.defaultGernagePropertiesCb) {
 			fragGernageColorSlider.className = "modal-settings-item slider-container";
 			fragGernageSizeSlider.className = "modal-settings-item slider-container";
+			defaultFragGernagePropertiesButton.className = "menu-option btn-darken";
 
 			var colorDescription = document.createElement('p');
 			var sizeDescription = document.createElement('p');
@@ -76,6 +79,8 @@ var menu = function(options, callbacks) {
 
 			sizeDescription.className = "slider-text";
 			sizeDescription.innerHTML = "Gernage size";
+
+			defaultFragGernagePropertiesButton.innerHTML = "Reset gernage properties";
 
 			var inputColor = document.createElement('input');
 			var inputSize = document.createElement('input');
@@ -102,6 +107,13 @@ var menu = function(options, callbacks) {
 				callbacks.gernagePropertiesCb(this.value, options.fragGernageSize);
 			}, false);
 
+			defaultFragGernagePropertiesButton.addEventListener("click", function() {
+				var defaultGernageProps = callbacks.defaultGernagePropertiesCb();
+
+				inputColor.value = defaultGernageProps.defaultFragGernageTint;
+				inputSize.value = defaultGernageProps.defaultFragGernageScale;
+			}, false);
+
 			fragGernageColorSlider.appendChild(colorDescription);
 			fragGernageColorSlider.appendChild(inputColor);
 
@@ -109,22 +121,38 @@ var menu = function(options, callbacks) {
 			fragGernageSizeSlider.appendChild(inputSize);
 		}
 
-		if(callbacks.autoAimEnableCb) {
+		if(callbacks.autoAimEnableCb && callbacks.autoAimTargetEnemyVisibilityCb) {
 			var description = document.createElement('p');
 			description.className = "modal-settings-checkbox-text";
 			description.innerHTML = "Auto aim enabled";
 
+			var targetNameVisibilityDescription = document.createElement('p');
+			targetNameVisibilityDescription.className = "modal-settings-checkbox-text";
+			targetNameVisibilityDescription.innerHTML = "Target enemy nickname visibility";
+
 			var input = document.createElement('input');
 			input.type = "checkbox";
 			input.checked = options.autoAimEnabled;
+
+			var targetNameVisibilityInput = document.createElement('input');
+			targetNameVisibilityInput.type = "checkbox";
+			targetNameVisibilityInput.checked = options.targetEnemyNicknameVisibility;
 
 			input.addEventListener("change", function() {
 				callbacks.autoAimEnableCb();
 				this.checked = options.autoAimEnabled;
 			}, false);
 
+			targetNameVisibilityInput.addEventListener("change", function() {
+				callbacks.autoAimTargetEnemyVisibilityCb();
+				this.checked = options.targetEnemyNicknameVisibility;
+			}, false);
+
 			autoAimEnabledCheckbox.appendChild(description);
 			autoAimEnabledCheckbox.appendChild(input);
+
+			autoAimTargetNameVisibilityCheckbox.appendChild(targetNameVisibilityDescription);
+			autoAimTargetNameVisibilityCheckbox.appendChild(targetNameVisibilityInput);
 		}
 
 		if(callbacks.autoLootEnableCb) {
@@ -186,8 +214,10 @@ var menu = function(options, callbacks) {
 
 		cheatMenuContainer.appendChild(fragGernageColorSlider);
 		cheatMenuContainer.appendChild(fragGernageSizeSlider);
+		cheatMenuContainer.appendChild(defaultFragGernagePropertiesButton);
 
 		cheatMenuContainer.appendChild(autoAimEnabledCheckbox);
+		cheatMenuContainer.appendChild(autoAimTargetNameVisibilityCheckbox);
 		cheatMenuContainer.appendChild(autoLootEnabledCheckbox);
 		cheatMenuContainer.appendChild(autoOpeningDoorsEnabledCheckbox);
 		cheatMenuContainer.appendChild(zoomRadiusManagerEnabledCheckbox);
@@ -200,9 +230,9 @@ var menu = function(options, callbacks) {
 		cheatMenuContainer = document.createElement('div');
 	}
 
-	var escListener = {
+	var bKeyListener = {
 		keyup: function(e) {
-			if(event.which == 27) {
+			if(event.which == 66) {
 				menuOpened = !menuOpened;
 				if(menuOpened) {
 					showMenu();
@@ -213,17 +243,17 @@ var menu = function(options, callbacks) {
 		}
 	}
 
-	var addEscListener = function() {
-		window.addEventListener("keyup", escListener.keyup);
+	var addBKeyListener = function() {
+		window.addEventListener("keyup", bKeyListener.keyup);
 	}
 
-	var removeEscListener = function() {
-		window.removeEventListener("keyup", escListener.keyup);
+	var removeBKeyListener = function() {
+		window.removeEventListener("keyup", bKeyListener.keyup);
 	}
 
 	var bind = function() {
-		removeEscListener();
-		addEscListener();
+		removeBKeyListener();
+		addBKeyListener();
 		binded = true;
 	}
 
@@ -233,7 +263,7 @@ var menu = function(options, callbacks) {
 			menuOpened = false;
 		}
 
-		removeEscListener();
+		removeBKeyListener();
 		binded = false;
 	}
 

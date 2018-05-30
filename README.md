@@ -9,7 +9,7 @@ When you start the game, just press `Z` key to enable/disable cheat. Your person
 Update: You can shoot on space key.  
 Update: Auto loot and auto opening door added.  
 Update: Zoom radius regulation by `Left shift` + `Mouse wheel`  
-Update: Game menu added. Press `Z` key to enable the cheat and `Esc` to show menu.  
+Update: Game menu added. Press `Z` key to enable the cheat and `B` to show menu.  
 Update: Fast weapon changing, just click right mouse key.  
 Update: Emotes available on mouse wheel click (instead right mouse key).  
 Update: If you need to temporary disable auto aim, just hold `Left shift` key.  
@@ -30,7 +30,7 @@ All actions you take at your own risk. The author is not responsible for the con
 Обновление: Кроме кнопки мыши, стрелять можно нажав на пробел.  
 Обновление: Автоматическое открытие дверей и сборка лута.  
 Обновление: Для регулирования радиуса зума используйте клавиши `Left shift` + `Mouse wheel`  
-Обновление: Добавлено игровое меню. Чтобы включить меню во время игры нажмите `Z` для включение чита, после чего нажмите `Esc`   
+Обновление: Добавлено игровое меню. Чтобы включить меню во время игры нажмите `Z` для включение чита, после чего нажмите `B`   
 Обновление: Быстрая смена оружия нажатием правой кнопки мыши.  
 Обновление: Эмоции доступны по нажатию колесика мыши (вместо правой кнопки мыши).  
 Обновление: Чтобы временно отключить автоаим зажмите и удерживайте `Left shift`.  

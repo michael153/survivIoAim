@@ -10,9 +10,9 @@ var menu = function(options, callbacks) {
 		var particlesTransparencySlider = document.createElement('div');
 		var ceilingTrancparencySlider = document.createElement('div');
 
-		var fragGernageColorSlider = document.createElement('div');
-		var fragGernageSizeSlider = document.createElement('div');
-		var defaultFragGernagePropertiesButton = document.createElement('div');
+		var fragGernadeColorSlider = document.createElement('div');
+		var fragGernadeSizeSlider = document.createElement('div');
+		var defaultFragGernadePropertiesButton = document.createElement('div');
 
 		var autoAimEnabledCheckbox = document.createElement('div');
 		var autoAimTargetNameVisibilityCheckbox = document.createElement('div');
@@ -66,21 +66,21 @@ var menu = function(options, callbacks) {
 			ceilingTrancparencySlider.appendChild(input);
 		}
 
-		if(callbacks.gernagePropertiesCb && callbacks.defaultGernagePropertiesCb) {
-			fragGernageColorSlider.className = "modal-settings-item slider-container";
-			fragGernageSizeSlider.className = "modal-settings-item slider-container";
-			defaultFragGernagePropertiesButton.className = "menu-option btn-darken";
+		if(callbacks.gernadePropertiesCb && callbacks.defaultGernadePropertiesCb) {
+			fragGernadeColorSlider.className = "modal-settings-item slider-container";
+			fragGernadeSizeSlider.className = "modal-settings-item slider-container";
+			defaultFragGernadePropertiesButton.className = "menu-option btn-darken";
 
 			var colorDescription = document.createElement('p');
 			var sizeDescription = document.createElement('p');
 
 			colorDescription.className = "slider-text";
-			colorDescription.innerHTML = "Gernage color";
+			colorDescription.innerHTML = "Gernade color";
 
 			sizeDescription.className = "slider-text";
-			sizeDescription.innerHTML = "Gernage size";
+			sizeDescription.innerHTML = "Gernade size";
 
-			defaultFragGernagePropertiesButton.innerHTML = "Reset gernage properties";
+			defaultFragGernadePropertiesButton.innerHTML = "Reset gernade properties";
 
 			var inputColor = document.createElement('input');
 			var inputSize = document.createElement('input');
@@ -90,35 +90,35 @@ var menu = function(options, callbacks) {
 			inputColor.min = "0";
 			inputColor.max = "16777216";
 			inputColor.step = "1";
-			inputColor.value = options.fragGernageColor;
+			inputColor.value = options.fragGernadeColor;
 
 			inputSize.className = "slider";
 			inputSize.type = "range";
 			inputSize.min = "0.1";
 			inputSize.max = "0.5";
 			inputSize.step = "0.01";
-			inputSize.value = options.fragGernageSize;
+			inputSize.value = options.fragGernadeSize;
 
 			inputColor.addEventListener("input", function() {
-				callbacks.gernagePropertiesCb(options.fragGernageColor, this.value);
+				callbacks.gernadePropertiesCb(options.fragGernadeColor, this.value);
 			}, false);
 
 			inputSize.addEventListener("input", function() {
-				callbacks.gernagePropertiesCb(this.value, options.fragGernageSize);
+				callbacks.gernadePropertiesCb(this.value, options.fragGernadeSize);
 			}, false);
 
-			defaultFragGernagePropertiesButton.addEventListener("click", function() {
-				var defaultGernageProps = callbacks.defaultGernagePropertiesCb();
+			defaultFragGernadePropertiesButton.addEventListener("click", function() {
+				var defaultGernadeProps = callbacks.defaultGernadePropertiesCb();
 
-				inputColor.value = defaultGernageProps.defaultFragGernageTint;
-				inputSize.value = defaultGernageProps.defaultFragGernageScale;
+				inputColor.value = defaultGernadeProps.defaultFragGernadeTint;
+				inputSize.value = defaultGernadeProps.defaultFragGernadeScale;
 			}, false);
 
-			fragGernageColorSlider.appendChild(colorDescription);
-			fragGernageColorSlider.appendChild(inputColor);
+			fragGernadeColorSlider.appendChild(colorDescription);
+			fragGernadeColorSlider.appendChild(inputColor);
 
-			fragGernageSizeSlider.appendChild(sizeDescription);
-			fragGernageSizeSlider.appendChild(inputSize);
+			fragGernadeSizeSlider.appendChild(sizeDescription);
+			fragGernadeSizeSlider.appendChild(inputSize);
 		}
 
 		if(callbacks.autoAimEnableCb && callbacks.autoAimTargetEnemyVisibilityCb) {
@@ -212,9 +212,9 @@ var menu = function(options, callbacks) {
 		cheatMenuContainer.appendChild(particlesTransparencySlider);
 		cheatMenuContainer.appendChild(ceilingTrancparencySlider);
 
-		cheatMenuContainer.appendChild(fragGernageColorSlider);
-		cheatMenuContainer.appendChild(fragGernageSizeSlider);
-		cheatMenuContainer.appendChild(defaultFragGernagePropertiesButton);
+		cheatMenuContainer.appendChild(fragGernadeColorSlider);
+		cheatMenuContainer.appendChild(fragGernadeSizeSlider);
+		cheatMenuContainer.appendChild(defaultFragGernadePropertiesButton);
 
 		cheatMenuContainer.appendChild(autoAimEnabledCheckbox);
 		cheatMenuContainer.appendChild(autoAimTargetNameVisibilityCheckbox);

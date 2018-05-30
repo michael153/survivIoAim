@@ -25,9 +25,9 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 	var options = {
 		particlesTransparency: 0.5,
 		ceilingTrancparency: 0.5,
-		fragGernageSize: 0.31,
-		fragGernageColor: 16711680,
-		defaultFragGernageEnabled: false,
+		fragGernadeSize: 0.31,
+		fragGernadeColor: 16711680,
+		defaultFragGernadeEnabled: false,
 		autoAimEnabled: true,
 		autoLootEnabled: true,
 		autoOpeningDoorsEnabled: true,
@@ -61,20 +61,20 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 
 	var particlesTransparencyCb = null;
 	var ceilingTrancparencyCb = null;
-	var gernagePropertiesCb = null;
-	var defaultGernagePropertiesCb = null;
+	var gernadePropertiesCb = null;
+	var defaultGernadePropertiesCb = null;
 
-	// Default gernage properties
-	var defaultFragGernageTint = null;
-	var defaultFragGernageScale = null;
+	// Default gernade properties
+	var defaultFragGernadeTint = null;
+	var defaultFragGernadeScale = null;
 
 	if(!!defsParticles || !!items) {
-		// Gernage size and color
-		defaultFragGernageTint = items.frag.worldImg.tint;
-		defaultFragGernageScale	= items.frag.worldImg.scale;
+		// Gernade size and color
+		defaultFragGernadeTint = items.frag.worldImg.tint;
+		defaultFragGernadeScale	= items.frag.worldImg.scale;
 
-		items.frag.worldImg.tint = options.fragGernageColor;
-		items.frag.worldImg.scale = options.fragGernageSize;
+		items.frag.worldImg.tint = options.fragGernadeColor;
+		items.frag.worldImg.scale = options.fragGernadeSize;
 
 		// Ceiling alpha
 		Object.keys(defsParticles).forEach(function(key) {
@@ -119,24 +119,24 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 			});
 		}
 
-		gernagePropertiesCb = function(size, color) {
-			options.fragGernageSize = size;
-			options.fragGernageColor = color;
+		gernadePropertiesCb = function(size, color) {
+			options.fragGernadeSize = size;
+			options.fragGernadeColor = color;
 
 			items.frag.worldImg.tint = color;
 			items.frag.worldImg.scale = size;
 		}
 
-		defaultGernagePropertiesCb = function() {
-			options.fragGernageSize = defaultFragGernageScale;
-			options.fragGernageColor = defaultFragGernageTint;
+		defaultGernadePropertiesCb = function() {
+			options.fragGernadeSize = defaultFragGernadeScale;
+			options.fragGernadeColor = defaultFragGernadeTint;
 
-			items.frag.worldImg.scale = defaultFragGernageScale;
-			items.frag.worldImg.tint = defaultFragGernageTint;
+			items.frag.worldImg.scale = defaultFragGernadeScale;
+			items.frag.worldImg.tint = defaultFragGernadeTint;
 
 			return {
-				defaultFragGernageScale: defaultFragGernageScale,
-				defaultFragGernageTint: defaultFragGernageTint
+				defaultFragGernadeScale: defaultFragGernadeScale,
+				defaultFragGernadeTint: defaultFragGernadeTint
 			}
 		}
 	}
@@ -217,8 +217,8 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 	var menu = modules.menu(options, {
 		particlesTransparencyCb: particlesTransparencyCb,
 		ceilingTrancparencyCb: ceilingTrancparencyCb,
-		gernagePropertiesCb: gernagePropertiesCb,
-		defaultGernagePropertiesCb: defaultGernagePropertiesCb,
+		gernadePropertiesCb: gernadePropertiesCb,
+		defaultGernadePropertiesCb: defaultGernadePropertiesCb,
 
 		autoAimEnableCb: autoAimEnableCb,
 		autoAimTargetEnemyVisibilityCb: autoAimTargetEnemyVisibilityCb,

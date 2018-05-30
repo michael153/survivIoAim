@@ -97,7 +97,7 @@ function patchAppCode(appCode) {
 			to: 'removeAds:function(){},_removeAds:function()'
 		},
 		{
-			name: "Smoke gernage alpha",
+			name: "Smoke gernade alpha",
 			from: /sprite.tint=([a-z]).tint,([a-z]).sprite.alpha=[a-z],([a-z]).sprite.visible=([a-z]).active/g,
 			to: 'sprite.tint=$1.tint,$2.sprite.alpha=0.1,$3.sprite.visible=$4.active'
 		},

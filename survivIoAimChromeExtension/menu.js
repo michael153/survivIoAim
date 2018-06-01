@@ -5,7 +5,7 @@ var menu = function(options, callbacks) {
 	var showMenu = function() {
 		var cheatMenuContainer = document.createElement('div');
 		cheatMenuContainer.className = "modal-body";
-		cheatMenuContainer.style = "display:block;z-index:10;pointer-events:all;position:absolute;max-height:500px;width:25%;"
+		cheatMenuContainer.style = "display:block;z-index:10;pointer-events:all;position:absolute;max-height:500px;width:25%;overflow:auto;"
 
 		var particlesTransparencySlider = document.createElement('div');
 		var ceilingTrancparencySlider = document.createElement('div');
@@ -16,6 +16,8 @@ var menu = function(options, callbacks) {
 
 		var autoAimEnabledCheckbox = document.createElement('div');
 		var autoAimTargetNameVisibilityCheckbox = document.createElement('div');
+		var forwardFiringCoeffSlider = document.createElement('div');
+
 		var autoLootEnabledCheckbox = document.createElement('div');
 		var autoOpeningDoorsEnabledCheckbox = document.createElement('div');
 		var zoomRadiusManagerEnabledCheckbox = document.createElement('div');
@@ -155,6 +157,29 @@ var menu = function(options, callbacks) {
 			autoAimTargetNameVisibilityCheckbox.appendChild(targetNameVisibilityInput);
 		}
 
+		if(callbacks.forwardFiringCoeffCb) {
+			forwardFiringCoeffSlider.className = "modal-settings-item slider-container";
+
+			var description = document.createElement('p');
+			description.className = "slider-text";
+			description.innerHTML = "Forward firing coeff";
+
+			var input = document.createElement('input');
+			input.className = "slider";
+			input.type = "range";
+			input.min = "0.9";
+			input.max = "1.1";
+			input.step = "0.01";
+			input.value = options.forwardFiringCoeff;
+
+			input.addEventListener("input", function() {
+				callbacks.forwardFiringCoeffCb(this.value);
+			}, false);
+
+			forwardFiringCoeffSlider.appendChild(description);
+			forwardFiringCoeffSlider.appendChild(input);
+		}
+
 		if(callbacks.autoLootEnableCb) {
 			var description = document.createElement('p');
 			description.className = "modal-settings-checkbox-text";
@@ -218,6 +243,8 @@ var menu = function(options, callbacks) {
 
 		cheatMenuContainer.appendChild(autoAimEnabledCheckbox);
 		cheatMenuContainer.appendChild(autoAimTargetNameVisibilityCheckbox);
+		cheatMenuContainer.appendChild(forwardFiringCoeffSlider);
+
 		cheatMenuContainer.appendChild(autoLootEnabledCheckbox);
 		cheatMenuContainer.appendChild(autoOpeningDoorsEnabledCheckbox);
 		cheatMenuContainer.appendChild(zoomRadiusManagerEnabledCheckbox);

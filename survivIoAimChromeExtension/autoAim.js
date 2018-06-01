@@ -12,7 +12,8 @@ var autoAim = function(game, variables) {
 	}
 
 	var options = {
-		targetEnemyNicknameVisibility: true
+		targetEnemyNicknameVisibility: true,
+		forwardFiringCoeff: 1
 	};
 
 	// Yeah i know that i can create single func with key arg
@@ -92,7 +93,7 @@ var autoAim = function(game, variables) {
 		var bulletApproachTime = Infinity;
 		
 		if(items[game.scope.activePlayer.weapType].bulletType) {
-			bulletSpeed = bullets[items[game.scope.activePlayer.weapType].bulletType].speed;
+			bulletSpeed = bullets[items[game.scope.activePlayer.weapType].bulletType].speed * options.forwardFiringCoeff;
 		} else {
 			bulletSpeed = 1000;
 		};
@@ -359,6 +360,8 @@ var autoAim = function(game, variables) {
 
 	var bind = function(opt) {
 		options.targetEnemyNicknameVisibility = opt.targetEnemyNicknameVisibility;
+		options.forwardFiringCoeff = opt.forwardFiringCoeff;
+
 		state = getNewState();
 
 		defaultBOnMouseDown = game.scope.input.bOnMouseDown;
@@ -416,9 +419,15 @@ var autoAim = function(game, variables) {
 		return binded;
 	}
 
+	var setforwardFiringCoeff = function(coeff) {
+		options.forwardFiringCoeff = coeff;
+	}
+
 	return {
 		bind: bind,
 		unbind: unbind,
-		isBinded: isBinded
+		isBinded: isBinded,
+
+		setforwardFiringCoeff: setforwardFiringCoeff
 	}
 }

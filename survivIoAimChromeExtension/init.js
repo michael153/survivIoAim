@@ -32,7 +32,8 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		autoLootEnabled: true,
 		autoOpeningDoorsEnabled: true,
 		zoomRadiusManagerEnabled: true,
-		targetEnemyNicknameVisibility: true
+		targetEnemyNicknameVisibility: true,
+		forwardFiringCoeff: 1
 	}
 
 	var defsParticles = findVariable("Defs", exports);
@@ -63,6 +64,7 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 	var ceilingTrancparencyCb = null;
 	var gernadePropertiesCb = null;
 	var defaultGernadePropertiesCb = null;
+	var forwardFiringCoeffCb = null;
 
 	// Default gernade properties
 	var defaultFragGernadeTint = null;
@@ -141,18 +143,32 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		}
 	}
 
+	forwardFiringCoeffCb = function(coeff) {
+		options.forwardFiringCoeff = parseFloat(coeff);
+		autoAim.setforwardFiringCoeff(options.forwardFiringCoeff);
+	}
+
 	// setInterval(function(){if(game.scope && game.scope.activePlayer){
 	// 	console.log(game.scope);console.log(exports);
 	// }}, 2000);
 
+	var bindAutoAim = function() {
+		autoAim.bind({
+			targetEnemyNicknameVisibility: options.targetEnemyNicknameVisibility,
+			forwardFiringCoeff: options.forwardFiringCoeff
+		});
+	}
+
+	var unbindAutoAim = function() {
+		autoAim.unbind();
+	}
+
 	var autoAimEnableCb = function() {
 		if(autoAim.isBinded() && options.autoAimEnabled) {
-			autoAim.unbind();
+			unbindAutoAim();
 			options.autoAimEnabled = false;
 		} else if(!autoAim.isBinded() && !options.autoAimEnabled) {
-			autoAim.bind({
-				targetEnemyNicknameVisibility: options.targetEnemyNicknameVisibility
-			});
+			bindAutoAim();
 			options.autoAimEnabled = true;
 		}
 	}
@@ -160,10 +176,8 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 	var autoAimTargetEnemyVisibilityCb = function() {
 		options.targetEnemyNicknameVisibility = !options.targetEnemyNicknameVisibility;
 		if(autoAim.isBinded() && options.autoAimEnabled) {
-			autoAim.unbind();
-			autoAim.bind({
-				targetEnemyNicknameVisibility: options.targetEnemyNicknameVisibility
-			});
+			unbindAutoAim();
+			bindAutoAim();
 		}
 	}
 
@@ -222,6 +236,7 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 
 		autoAimEnableCb: autoAimEnableCb,
 		autoAimTargetEnemyVisibilityCb: autoAimTargetEnemyVisibilityCb,
+		forwardFiringCoeffCb: forwardFiringCoeffCb,
 		
 		autoLootEnableCb: autoLootEnableCb,
 		autoOpeningDoorsEnableCb: autoOpeningDoorsEnableCb,
@@ -232,7 +247,7 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		keydown: function(event) {
 			if(event.which == 16) {
 				if(autoAim.isBinded()) {
-					autoAim.unbind();
+					unbindAutoAim();
 				}
 				if(autoLoot.isBinded()) {
 					autoLoot.unbind();
@@ -242,9 +257,7 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		keyup: function(event) {
 			if(event.which == 16) {
 				if(options.autoAimEnabled && !autoAim.isBinded()) {
-					autoAim.bind({
-						targetEnemyNicknameVisibility: options.targetEnemyNicknameVisibility
-					});
+					bindAutoAim();
 				}
 				if(options.autoLootEnabled && !autoLoot.isBinded()) {
 					autoLoot.bind({
@@ -269,9 +282,7 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		addLShiftKeyListener();
 
 		if(options.autoAimEnabled && !autoAim.isBinded()) {
-			autoAim.bind({
-				targetEnemyNicknameVisibility: options.targetEnemyNicknameVisibility
-			});
+			bindAutoAim();
 		}
 
 		if(options.autoLootEnabled && !autoLoot.isBinded()) {
@@ -299,7 +310,7 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		}
 		
 		if(autoAim.isBinded()) {
-			autoAim.unbind();
+			unbindAutoAim();
 		}
 
 		if(autoLoot.isBinded()) {

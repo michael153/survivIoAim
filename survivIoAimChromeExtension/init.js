@@ -1,4 +1,4 @@
-var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
+var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha, modules) {
 	if(!exports) return;
 	
 	function findVariable(name, exports) {
@@ -27,6 +27,7 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		ceilingTrancparency: 0.5,
 		fragGernadeSize: 0.31,
 		fragGernadeColor: 16711680,
+		smokeGernadeAlpha: 0.1,
 		defaultFragGernadeEnabled: false,
 		autoAimEnabled: true,
 		autoLootEnabled: true,
@@ -129,6 +130,11 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 			items.frag.worldImg.scale = size;
 		}
 
+		smokeGernadePropertiesCb = function(alpha) {
+			options.smokeGernadeAlpha = parseFloat(alpha);
+			smokeGernadeManager.setSmokeAlpha(options.smokeGernadeAlpha);
+		}
+
 		defaultGernadePropertiesCb = function() {
 			options.fragGernadeSize = defaultFragGernadeScale;
 			options.fragGernadeColor = defaultFragGernadeTint;
@@ -145,7 +151,7 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 
 	forwardFiringCoeffCb = function(coeff) {
 		options.forwardFiringCoeff = parseFloat(coeff);
-		autoAim.setforwardFiringCoeff(options.forwardFiringCoeff);
+		autoAim.setForwardFiringCoeff(options.forwardFiringCoeff);
 	}
 
 	// setInterval(function(){if(game.scope && game.scope.activePlayer){
@@ -228,11 +234,15 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		scopeZoomRadius: scopeZoomRadius
 	});
 
+	var smokeGernadeManager = modules.smokeGernadeManager(game, smokeAlpha);
+
 	var menu = modules.menu(options, {
 		particlesTransparencyCb: particlesTransparencyCb,
 		ceilingTrancparencyCb: ceilingTrancparencyCb,
+
 		gernadePropertiesCb: gernadePropertiesCb,
 		defaultGernadePropertiesCb: defaultGernadePropertiesCb,
+		smokeGernadePropertiesCb: smokeGernadePropertiesCb,
 
 		autoAimEnableCb: autoAimEnableCb,
 		autoAimTargetEnemyVisibilityCb: autoAimTargetEnemyVisibilityCb,
@@ -297,6 +307,12 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 			zoomRadiusManager.bind();
 		}
 
+		if(!smokeGernadeManager.isBinded()) {
+			smokeGernadeManager.bind({
+				smokeAlpha: options.smokeGernadeAlpha
+			});
+		}
+
 		if(!menu.isBinded()) {
 			menu.bind();
 		}
@@ -323,6 +339,10 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 
 		if(zoomRadiusManager.isBinded()) {
 			zoomRadiusManager.unbind();
+		}
+
+		if(smokeGernadeManager.isBinded()) {
+			smokeGernadeManager.unbind();
 		}
 	}
 

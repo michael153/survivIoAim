@@ -4,6 +4,7 @@ variableNames.game = '_' + Math.random().toString(36).substring(7);
 variableNames.exports = '_' + Math.random().toString(36).substring(7);
 variableNames.interactionEmitter = '_' + Math.random().toString(36).substring(7);
 variableNames.emitActionCb = '_' + Math.random().toString(36).substring(7);
+variableNames.smokeAlpha = '_' + Math.random().toString(36).substring(7);
 
 function patchManifestCode(manifestCode) {
 	var patchRules = [
@@ -37,6 +38,7 @@ function wrapAppCode(appCode) {
 	var wrapCode = '';
 	var modules = '';
 	
+	// Exporting modules from extension files
 	modules = '{';
 	modules = modules + 'autoAim:';
 	modules = modules + autoAim + ',';
@@ -46,6 +48,8 @@ function wrapAppCode(appCode) {
 	modules = modules + autoOpeningDoors + ',';
 	modules = modules + 'menu:';
 	modules = modules + menu + ',';
+	modules = modules + 'smokeGernadeManager:';
+	modules = modules + smokeGernadeManager + ',';
 	modules = modules + 'zoomRadiusManager:';
 	modules = modules + zoomRadiusManager + '}';
 
@@ -53,17 +57,21 @@ function wrapAppCode(appCode) {
 	wrapCode = wrapCode + variableNames.game + ',';
 	wrapCode = wrapCode + variableNames.exports + ',';
 	wrapCode = wrapCode + variableNames.interactionEmitter + ',';
-	wrapCode = wrapCode + variableNames.emitActionCb + '){';
+	wrapCode = wrapCode + variableNames.emitActionCb + ',';
+	wrapCode = wrapCode + variableNames.smokeAlpha + '){';
 
+	// Wrapping game client code
 	appCode = wrapCode + appCode;
 
+	// init from init.js
 	wrapCode = '\n(' + init + ')(';
 	wrapCode = wrapCode + variableNames.game + ',';
 	wrapCode = wrapCode + variableNames.exports + ',';
 	wrapCode = wrapCode + variableNames.interactionEmitter + ',';
 	wrapCode = wrapCode + variableNames.emitActionCb + ',';
+	wrapCode = wrapCode + variableNames.smokeAlpha + ',';
 	wrapCode = wrapCode + modules + ');';
-	wrapCode = wrapCode + '})({}, window["' + variableNames.exports + '"], {}, {});'; 
+	wrapCode = wrapCode + '})({}, window["' + variableNames.exports + '"], {}, {}, {}, {});'; 
 
 	appCode = appCode + wrapCode;
 
@@ -99,7 +107,7 @@ function patchAppCode(appCode) {
 		{
 			name: "Smoke gernade alpha",
 			from: /sprite.tint=([a-z]).tint,([a-z]).sprite.alpha=[a-z],([a-z]).sprite.visible=([a-z]).active/g,
-			to: 'sprite.tint=$1.tint,$2.sprite.alpha=0.1,$3.sprite.visible=$4.active'
+			to: 'sprite.tint=$1.tint,$2.sprite.alpha=' + variableNames.smokeAlpha + '.scope,$3.sprite.visible=$4.active'
 		},
 
 		{

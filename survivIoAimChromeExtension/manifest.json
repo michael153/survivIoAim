@@ -22,6 +22,7 @@
 			"autoLoot.js",
 			"autoOpeningDoors.js",
 			"zoomRadiusManager.js",
+			"smokeGernadeManager.js",
 			"menu.js",
 			"background.js"
 		],

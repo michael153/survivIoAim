@@ -253,7 +253,6 @@ var autoAim = function(game, variables) {
 			state.new = true;
 
 			return;
-			// todo: check equals playerId in all items of array
 		}
 	}
 
@@ -370,7 +369,7 @@ var autoAim = function(game, variables) {
 
 		defaultPlayerBarnRenderFunction = playerBarn.prototype.render;
 		playerBarn.prototype.render = function(e) {
-			playerBarnRenderContext = this;
+			var playerBarnRenderContext = this;
 
 			updateState(detectEnemies());
 						
@@ -419,7 +418,7 @@ var autoAim = function(game, variables) {
 		return binded;
 	}
 
-	var setforwardFiringCoeff = function(coeff) {
+	var setForwardFiringCoeff = function(coeff) {
 		options.forwardFiringCoeff = coeff;
 	}
 
@@ -428,6 +427,6 @@ var autoAim = function(game, variables) {
 		unbind: unbind,
 		isBinded: isBinded,
 
-		setforwardFiringCoeff: setforwardFiringCoeff
+		setForwardFiringCoeff: setForwardFiringCoeff
 	}
 }

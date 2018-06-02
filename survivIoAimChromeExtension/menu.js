@@ -13,6 +13,7 @@ var menu = function(options, callbacks) {
 		var fragGernadeColorSlider = document.createElement('div');
 		var fragGernadeSizeSlider = document.createElement('div');
 		var defaultFragGernadePropertiesButton = document.createElement('div');
+		var smokeGernadeAlphaSlider = document.createElement('div');
 
 		var autoAimEnabledCheckbox = document.createElement('div');
 		var autoAimTargetNameVisibilityCheckbox = document.createElement('div');
@@ -121,6 +122,29 @@ var menu = function(options, callbacks) {
 
 			fragGernadeSizeSlider.appendChild(sizeDescription);
 			fragGernadeSizeSlider.appendChild(inputSize);
+		}
+
+		if(callbacks.smokeGernadePropertiesCb) {
+			smokeGernadeAlphaSlider.className = "modal-settings-item slider-container";
+
+			var description = document.createElement('p');
+			description.className = "slider-text";
+			description.innerHTML = "Smoke alpha";
+
+			var input = document.createElement('input');
+			input.className = "slider";
+			input.type = "range";
+			input.min = "0";
+			input.max = "1";
+			input.step = "0.01";
+			input.value = options.smokeGernadeAlpha;
+
+			input.addEventListener("input", function() {
+				callbacks.smokeGernadePropertiesCb(this.value);
+			}, false);
+
+			smokeGernadeAlphaSlider.appendChild(description);
+			smokeGernadeAlphaSlider.appendChild(input);
 		}
 
 		if(callbacks.autoAimEnableCb && callbacks.autoAimTargetEnemyVisibilityCb) {
@@ -240,6 +264,7 @@ var menu = function(options, callbacks) {
 		cheatMenuContainer.appendChild(fragGernadeColorSlider);
 		cheatMenuContainer.appendChild(fragGernadeSizeSlider);
 		cheatMenuContainer.appendChild(defaultFragGernadePropertiesButton);
+		cheatMenuContainer.appendChild(smokeGernadeAlphaSlider);
 
 		cheatMenuContainer.appendChild(autoAimEnabledCheckbox);
 		cheatMenuContainer.appendChild(autoAimTargetNameVisibilityCheckbox);

@@ -137,7 +137,7 @@ var autoAim = function(game, variables) {
 
 	var getNewState = function() {
 		var state = [];
-		for(var i = 0; i < 4; i++) {
+		for(var i = 0; i < 3; i++) {
 			state.push({
 				distance: null,
 				radianAngle: null,

@@ -216,15 +216,8 @@ var codeInjector = (function(){
 	}
 
 	var injectCode = function(tabId, code) {
-		chrome.tabs.get(tabId, function(tab) {
-			if(chrome.runtime.lastError) {
-				console.log(chrome.runtime.lastError.message.toString());
-				return;
-			} else {
-				chrome.tabs.executeScript(tabId, {
-					code: code
-				});
-			}
+		chrome.tabs.executeScript(tabId, {
+			code: code
 		});
 	};
 
@@ -256,134 +249,139 @@ var appCodeUpdating = false;
 
 chrome.webRequest.onBeforeRequest.addListener(
 	function(details) {
-		if(details.url.match(/manifest/)) {
+		chrome.tabs.get(details.tabId, function(tab) {
 
-			if(!manifestCodeUpdating) {
-				manifestCodeUpdating = true;	
-			} else {
-				return;
-			}
+			if(chrome.runtime.lastError) return;
 
-			chrome.storage.local.get(['manifestCode'], function(manifestCode) {
-				if(manifestCode.manifestCode === undefined) {
-					codeInjector.updateManifestCode(details.url, function(patchedManifestCode) {
-						console.log("Manifest code updated.");
-						codeInjector.setManifestCode(patchedManifestCode);
-						manifestCodeUpdating = false;
-						codeInjector.tryToInjectCode(details.tabId);
-					}, function(){
-						manifestCodeUpdating = false;
-						console.log("Err getting manifest file. Page will be reloaded after 5 seconds...");
-						setTimeout(function(){chrome.tabs.reload(details.tabId, null, null)}, 5000);
-					});
+			if(details.url.match(/manifest/)) {
+
+				if(!manifestCodeUpdating) {
+					manifestCodeUpdating = true;	
 				} else {
-					chrome.storage.local.get(['mainfestVer'], function(mainfestVer) {
-						if(mainfestVer.mainfestVer != details.url.match(/manifest\.(.*)\.js/)[1]) {
-							codeInjector.updateManifestCode(details.url, function(patchedManifestCode) {
-								console.log("Manifest code updated.");
-								codeInjector.setManifestCode(patchedManifestCode);
-								manifestCodeUpdating = false;
-								codeInjector.tryToInjectCode(details.tabId);
-							}, function(){
-								manifestCodeUpdating = false;
-								console.log("Err getting manifest file. Page will be reloaded after 5 seconds...");
-								setTimeout(function(){chrome.tabs.reload(details.tabId, null, null)}, 5000);
-							});
-						} else {
-							codeInjector.setManifestCode(manifestCode.manifestCode);
+					return;
+				}
+
+				chrome.storage.local.get(['manifestCode'], function(manifestCode) {
+					if(manifestCode.manifestCode === undefined) {
+						codeInjector.updateManifestCode(details.url, function(patchedManifestCode) {
+							console.log("Manifest code updated.");
+							codeInjector.setManifestCode(patchedManifestCode);
 							manifestCodeUpdating = false;
-							codeInjector.tryToInjectCode(details.tabId);
-						}
-					});
-				}
-			});
-		}
-
-		if(details.url.match(/vendor/)) {
-
-			if(!vendorCodeUpdating) {
-				vendorCodeUpdating = true;	
-			} else {
-				return;
+							codeInjector.tryToInjectCode(tab.id);
+						}, function(){
+							manifestCodeUpdating = false;
+							console.log("Err getting manifest file. Page will be reloaded after 5 seconds...");
+							setTimeout(function(){chrome.tabs.reload(tab.id, null, null)}, 5000);
+						});
+					} else {
+						chrome.storage.local.get(['mainfestVer'], function(mainfestVer) {
+							if(mainfestVer.mainfestVer != details.url.match(/manifest\.(.*)\.js/)[1]) {
+								codeInjector.updateManifestCode(details.url, function(patchedManifestCode) {
+									console.log("Manifest code updated.");
+									codeInjector.setManifestCode(patchedManifestCode);
+									manifestCodeUpdating = false;
+									codeInjector.tryToInjectCode(tab.id);
+								}, function(){
+									manifestCodeUpdating = false;
+									console.log("Err getting manifest file. Page will be reloaded after 5 seconds...");
+									setTimeout(function(){chrome.tabs.reload(tab.id, null, null)}, 5000);
+								});
+							} else {
+								codeInjector.setManifestCode(manifestCode.manifestCode);
+								manifestCodeUpdating = false;
+								codeInjector.tryToInjectCode(tab.id);
+							}
+						});
+					}
+				});
 			}
 
-			chrome.storage.local.get(['vendorCode'], function(vendorCode) {
-				if(vendorCode.vendorCode === undefined) {
-					codeInjector.updateVendorCode(details.url, function(vendorCode) {
-						console.log("Vendor code updated.");
-						codeInjector.setVendorCode(vendorCode);
-						vendorCodeUpdating = false;
-						codeInjector.tryToInjectCode(details.tabId);
-					}, function(){
-						vendorCodeUpdating = false;
-						console.log("Err update vendor file. Page will be reloaded after 5 seconds...");
-						setTimeout(function(){chrome.tabs.reload(details.tabId, null, null)}, 5000);
-					});
+			if(details.url.match(/vendor/)) {
+
+				if(!vendorCodeUpdating) {
+					vendorCodeUpdating = true;	
 				} else {
-					chrome.storage.local.get(['vendorVer'], function(vendorVer) {
-						if(vendorVer.vendorVer != details.url.match(/vendor\.(.*)\.js/)[1]) {
-							codeInjector.updateVendorCode(details.url, function(vendorCode) {
-								console.log("Vendor code updated.");
-								codeInjector.setVendorCode(vendorCode);
-								vendorCodeUpdating = false;
-								codeInjector.tryToInjectCode(details.tabId);
-							}, function(){
-								vendorCodeUpdating = false;
-								console.log("Err update vendor file. Page will be reloaded after 5 seconds...");
-								setTimeout(function(){chrome.tabs.reload(details.tabId, null, null)}, 5000);
-							});
-						} else {
-							codeInjector.setVendorCode(vendorCode.vendorCode);
+					return;
+				}
+
+				chrome.storage.local.get(['vendorCode'], function(vendorCode) {
+					if(vendorCode.vendorCode === undefined) {
+						codeInjector.updateVendorCode(details.url, function(vendorCode) {
+							console.log("Vendor code updated.");
+							codeInjector.setVendorCode(vendorCode);
 							vendorCodeUpdating = false;
-							codeInjector.tryToInjectCode(details.tabId);
-						}
-					});
-				}
-			});
-		}
-
-		if(details.url.match(/app/)) {
-
-			if(!appCodeUpdating) {
-				appCodeUpdating = true;	
-			} else {
-				return;
+							codeInjector.tryToInjectCode(tab.id);
+						}, function(){
+							vendorCodeUpdating = false;
+							console.log("Err update vendor file. Page will be reloaded after 5 seconds...");
+							setTimeout(function(){chrome.tabs.reload(tab.id, null, null)}, 5000);
+						});
+					} else {
+						chrome.storage.local.get(['vendorVer'], function(vendorVer) {
+							if(vendorVer.vendorVer != details.url.match(/vendor\.(.*)\.js/)[1]) {
+								codeInjector.updateVendorCode(details.url, function(vendorCode) {
+									console.log("Vendor code updated.");
+									codeInjector.setVendorCode(vendorCode);
+									vendorCodeUpdating = false;
+									codeInjector.tryToInjectCode(tab.id);
+								}, function(){
+									vendorCodeUpdating = false;
+									console.log("Err update vendor file. Page will be reloaded after 5 seconds...");
+									setTimeout(function(){chrome.tabs.reload(tab.id, null, null)}, 5000);
+								});
+							} else {
+								codeInjector.setVendorCode(vendorCode.vendorCode);
+								vendorCodeUpdating = false;
+								codeInjector.tryToInjectCode(tab.id);
+							}
+						});
+					}
+				});
 			}
 
-			chrome.storage.local.get(['appCode'], function(appCode) {
-				if(appCode.appCode === undefined) {
-					codeInjector.updateAppCode(details.url, function(patchedAppCode) {
-						console.log("App code updated.");
-						codeInjector.setAppCode(patchedAppCode);
-						appCodeUpdating = false;
-						codeInjector.tryToInjectCode(details.tabId);
-					}, function(){
-						appCodeUpdating = false;
-						console.log("Err update app file. Page will be reloaded after 5 seconds...");
-						setTimeout(function(){chrome.tabs.reload(details.tabId, null, null)}, 5000);
-					});
+			if(details.url.match(/app/)) {
+
+				if(!appCodeUpdating) {
+					appCodeUpdating = true;	
 				} else {
-					chrome.storage.local.get(['appVer'], function(appVer) {
-						if(appVer.appVer != details.url.match(/app\.(.*)\.js/)[1]) {
-							codeInjector.updateAppCode(details.url, function(patchedAppCode) {
-								console.log("App code updated.");
-								codeInjector.setAppCode(patchedAppCode);
-								appCodeUpdating = false;
-								codeInjector.tryToInjectCode(details.tabId);
-							}, function(){
-								appCodeUpdating = false;
-								console.log("Err update app file. Page will be reloaded after 5 seconds...");
-								setTimeout(function(){chrome.tabs.reload(details.tabId, null, null)}, 5000);
-							});
-						} else {
-							codeInjector.setAppCode(appCode.appCode);
-							appCodeUpdating = false;
-							codeInjector.tryToInjectCode(details.tabId);
-						}
-					});
+					return;
 				}
-			});
-		}
+
+				chrome.storage.local.get(['appCode'], function(appCode) {
+					if(appCode.appCode === undefined) {
+						codeInjector.updateAppCode(details.url, function(patchedAppCode) {
+							console.log("App code updated.");
+							codeInjector.setAppCode(patchedAppCode);
+							appCodeUpdating = false;
+							codeInjector.tryToInjectCode(tab.id);
+						}, function(){
+							appCodeUpdating = false;
+							console.log("Err update app file. Page will be reloaded after 5 seconds...");
+							setTimeout(function(){chrome.tabs.reload(tab.id, null, null)}, 5000);
+						});
+					} else {
+						chrome.storage.local.get(['appVer'], function(appVer) {
+							if(appVer.appVer != details.url.match(/app\.(.*)\.js/)[1]) {
+								codeInjector.updateAppCode(details.url, function(patchedAppCode) {
+									console.log("App code updated.");
+									codeInjector.setAppCode(patchedAppCode);
+									appCodeUpdating = false;
+									codeInjector.tryToInjectCode(tab.id);
+								}, function(){
+									appCodeUpdating = false;
+									console.log("Err update app file. Page will be reloaded after 5 seconds...");
+									setTimeout(function(){chrome.tabs.reload(tab.id, null, null)}, 5000);
+								});
+							} else {
+								codeInjector.setAppCode(appCode.appCode);
+								appCodeUpdating = false;
+								codeInjector.tryToInjectCode(tab.id);
+							}
+						});
+					}
+				});
+			}
+		});
 
 		return {
 			cancel: true

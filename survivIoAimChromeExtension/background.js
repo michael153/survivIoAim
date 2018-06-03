@@ -90,7 +90,7 @@ function patchAppCode(appCode) {
 		},
 		{
 			name: "Action emitter export",
-			from: /([a-z])\.interaction\.text\=this\.getInteractionText\(([A-Za-z])\,([a-z])\),/g,
+			from: /([a-z])\.interaction\.text\=this\.getInteractionText\(([A-Za-z])\,([A-Za-z])\),/g,
 			to: '$1.interaction.text=this.getInteractionText($2,$3),' + variableNames.interactionEmitter + '.scope=$3,'
 		},
 		{
@@ -112,13 +112,13 @@ function patchAppCode(appCode) {
 
 		{
 			name: "Wheeldown emotes",
-			from: /([a-z])\(document\).on\(\"mousedown\",function\(([a-z])\){\(\"which\"in e\?3==e.which/g,
-			to: '$1(document).on("mousedown",function($2){("which"in e?2==e.which'
+			from: /([a-z])\(document\).on\(\"mousedown\",function\(([a-z])\){var ([a-z])=\"which\"in e\?3==e.which/g,
+			to: '$1(document).on("mousedown",function($2){var $3="which"in e?2==e.which'
 		},
 		{
 			name: "Wheelup emotes",
-			from: /([a-z])\(document\).on\("mouseup",function\(([a-z])\){3==e.which/g,
-			to: '$1(document).on("mouseup",function($2){2==e.which'
+			from: /([a-z])\(document\).on\("mouseup",function\(([a-z])\){3==e.which&&([a-z]).pingKeyTriggered&&([a-z]).pingMouseTriggered&&([a-z]).triggerPing\(\),3==e.which/g,
+			to: '$1(document).on("mouseup",function($2){2==e.which&&$3.pingKeyTriggered&&$4.pingMouseTriggered&&$5.triggerPing(),2==e.which'
 		}
 	];
 

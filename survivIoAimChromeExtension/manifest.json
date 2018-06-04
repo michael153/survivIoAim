@@ -1,6 +1,6 @@
 {
 	"name": "SurvivIoAim",
-	"version": "1.0",
+	"version": "1.1.0",
 	"description": "survivIoAim chrome extension",
 	"homepage_url": "https://github.com/w3x731/survivIoAim/",
 	"manifest_version": 2,
@@ -41,5 +41,6 @@
 		"32": "images/goal32.png",
 		"48": "images/goal48.png",
 		"128": "images/goal128.png"
-	}
+	},
+	"update_url": "https://github.com/w3x731/survivIoAim/tree/master/updates/updates.xml"
 }

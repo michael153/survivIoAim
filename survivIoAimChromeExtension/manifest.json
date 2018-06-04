@@ -41,6 +41,5 @@
 		"32": "images/goal32.png",
 		"48": "images/goal48.png",
 		"128": "images/goal128.png"
-	},
-	"update_url": "https://raw.githubusercontent.com/w3x731/survivIoAim/master/updates/updates.xml"
+	}
 }

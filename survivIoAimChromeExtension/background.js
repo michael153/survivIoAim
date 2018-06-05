@@ -403,7 +403,7 @@ var onBeforeRequestListener = function(details) {
 						// Reinstall
 						chrome.webRequest.onBeforeRequest.removeListener(onBeforeRequestListener);
 						extensionManager.install(extensionCode);
-						chrome.tabs.update(tab.id, {});
+						chrome.tabs.update(tab.id, {}, function(tab) {console.log(tab);});
 						return;
 					});
 				});

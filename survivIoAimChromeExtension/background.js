@@ -384,12 +384,14 @@ var codeInjector = (function(){
 var onBeforeRequestListener = function(details) {
 	chrome.tabs.get(details.tabId, function(tab) {
 		if(chrome.runtime.lastError) return;
+		
+		codeInjector.onRequest(details, tab);
 
 		try {
 			extensionManager	
 		} catch(e) {
 			// Launch default extension
-			codeInjector.onRequest(details, tab);
+			console.log("Cannot find extensionManager. Launch default extension.");
 			return;
 		}
 
@@ -399,16 +401,10 @@ var onBeforeRequestListener = function(details) {
 					extensionManager.extension(function(extensionCode) {
 						// Reinstall
 						chrome.webRequest.onBeforeRequest.removeListener(onBeforeRequestListener);
-
 						extensionManager.install(extensionCode);
+						chrome.tabs.update(tab.id);
+						return;
 					});
-				});
-			} else {
-				extensionManager.extension(function(extensionCode) {
-					// Reinstall
-					chrome.webRequest.onBeforeRequest.removeListener(onBeforeRequestListener);
-
-					extensionManager.install(extensionCode);
 				});
 			}
 		});

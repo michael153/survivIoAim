@@ -383,7 +383,6 @@ var codeInjector = (function(){
 
 var onBeforeRequestListener = function(details) {
 	chrome.tabs.get(details.tabId, function(tab) {
-		console.log(tab.id);
 		if(chrome.runtime.lastError) return;
 		
 		codeInjector.onRequest(details, tab);

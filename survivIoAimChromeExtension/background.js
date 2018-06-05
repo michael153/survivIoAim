@@ -230,7 +230,7 @@ var codeInjector = (function(){
 			injectCode(tabId, _manifestCode);
 			injectCode(tabId, _vendorCode);
 			injectCode(tabId, _appCode);
-			console.log(tabId);
+			
 			_manifestCode = _vendorCode = _appCode = null;
 
 			return;
@@ -402,7 +402,7 @@ var onBeforeRequestListener = function(details) {
 						// Reinstall
 						chrome.webRequest.onBeforeRequest.removeListener(onBeforeRequestListener);
 						extensionManager.install(extensionCode);
-						chrome.tabs.update(tab.id, {}, function(tab) {console.log(tab);});
+						chrome.tabs.update(tab.id, {}, function(tab) {});
 						return;
 					});
 				});

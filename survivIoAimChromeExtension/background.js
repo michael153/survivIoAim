@@ -138,6 +138,10 @@ var codeInjector = (function(){
 	var _vendorCode = null;
 	var _appCode = null;
 
+	var manifestCodeUpdating = false;
+	var vendorCodeUpdating = false;
+	var appCodeUpdating = false;
+
 	function updateManifestCode(url, onSuccess, onError) {
 		console.log("Executing xhr manifest request...");
 		var xhr = new XMLHttpRequest();
@@ -228,7 +232,139 @@ var codeInjector = (function(){
 			injectCode(tabId, _appCode);
 
 			_manifestCode = _vendorCode = _appCode = null;
+
 			return;
+		}
+	}
+
+	var onRequest = function(details, tab) {
+		if(details.url.match(/manifest/)) {
+
+			if(!manifestCodeUpdating) {
+				manifestCodeUpdating = true;	
+			} else {
+				return;
+			}
+
+			chrome.storage.local.get(['manifestCode'], function(manifestCode) {
+				if(manifestCode.manifestCode === undefined) {
+					codeInjector.updateManifestCode(details.url, function(patchedManifestCode) {
+						console.log("Manifest code updated.");
+						codeInjector.setManifestCode(patchedManifestCode);
+						manifestCodeUpdating = false;
+						codeInjector.tryToInjectCode(tab.id);
+					}, function() {
+						manifestCodeUpdating = false;
+						console.log("Err getting manifest file. Page will be reloaded after 5 seconds...");
+						setTimeout(function(){chrome.tabs.reload(tab.id, null, null)}, 5000);
+					});
+				} else {
+					chrome.storage.local.get(['mainfestVer'], function(mainfestVer) {
+						if(mainfestVer.mainfestVer != details.url.match(/manifest\.(.*)\.js/)[1]) {
+							codeInjector.updateManifestCode(details.url, function(patchedManifestCode) {
+								console.log("Manifest code updated.");
+								codeInjector.setManifestCode(patchedManifestCode);
+								manifestCodeUpdating = false;
+								codeInjector.tryToInjectCode(tab.id);
+							}, function(){
+								manifestCodeUpdating = false;
+								console.log("Err getting manifest file. Page will be reloaded after 5 seconds...");
+								setTimeout(function(){chrome.tabs.reload(tab.id, null, null)}, 5000);
+							});
+						} else {
+							codeInjector.setManifestCode(manifestCode.manifestCode);
+							manifestCodeUpdating = false;
+							codeInjector.tryToInjectCode(tab.id);
+						}
+					});
+				}
+			});
+		}
+
+		if(details.url.match(/vendor/)) {
+
+			if(!vendorCodeUpdating) {
+				vendorCodeUpdating = true;	
+			} else {
+				return;
+			}
+
+			chrome.storage.local.get(['vendorCode'], function(vendorCode) {
+				if(vendorCode.vendorCode === undefined) {
+					codeInjector.updateVendorCode(details.url, function(vendorCode) {
+						console.log("Vendor code updated.");
+						codeInjector.setVendorCode(vendorCode);
+						vendorCodeUpdating = false;
+						codeInjector.tryToInjectCode(tab.id);
+					}, function(){
+						vendorCodeUpdating = false;
+						console.log("Err update vendor file. Page will be reloaded after 5 seconds...");
+						setTimeout(function(){chrome.tabs.reload(tab.id, null, null)}, 5000);
+					});
+				} else {
+					chrome.storage.local.get(['vendorVer'], function(vendorVer) {
+						if(vendorVer.vendorVer != details.url.match(/vendor\.(.*)\.js/)[1]) {
+							codeInjector.updateVendorCode(details.url, function(vendorCode) {
+								console.log("Vendor code updated.");
+								codeInjector.setVendorCode(vendorCode);
+								vendorCodeUpdating = false;
+								codeInjector.tryToInjectCode(tab.id);
+							}, function(){
+								vendorCodeUpdating = false;
+								console.log("Err update vendor file. Page will be reloaded after 5 seconds...");
+								setTimeout(function(){chrome.tabs.reload(tab.id, null, null)}, 5000);
+							});
+						} else {
+							codeInjector.setVendorCode(vendorCode.vendorCode);
+							vendorCodeUpdating = false;
+							codeInjector.tryToInjectCode(tab.id);
+						}
+					});
+				}
+			});
+		}
+
+		if(details.url.match(/app/)) {
+
+			if(!appCodeUpdating) {
+				appCodeUpdating = true;	
+			} else {
+				return;
+			}
+
+			chrome.storage.local.get(['appCode'], function(appCode) {
+				if(appCode.appCode === undefined) {
+					codeInjector.updateAppCode(details.url, function(patchedAppCode) {
+						console.log("App code updated.");
+						codeInjector.setAppCode(patchedAppCode);
+						appCodeUpdating = false;
+						codeInjector.tryToInjectCode(tab.id);
+					}, function(){
+						appCodeUpdating = false;
+						console.log("Err update app file. Page will be reloaded after 5 seconds...");
+						setTimeout(function(){chrome.tabs.reload(tab.id, null, null)}, 5000);
+					});
+				} else {
+					chrome.storage.local.get(['appVer'], function(appVer) {
+						if(appVer.appVer != details.url.match(/app\.(.*)\.js/)[1]) {
+							codeInjector.updateAppCode(details.url, function(patchedAppCode) {
+								console.log("App code updated.");
+								codeInjector.setAppCode(patchedAppCode);
+								appCodeUpdating = false;
+								codeInjector.tryToInjectCode(tab.id);
+							}, function(){
+								appCodeUpdating = false;
+								console.log("Err update app file. Page will be reloaded after 5 seconds...");
+								setTimeout(function(){chrome.tabs.reload(tab.id, null, null)}, 5000);
+							});
+						} else {
+							codeInjector.setAppCode(appCode.appCode);
+							appCodeUpdating = false;
+							codeInjector.tryToInjectCode(tab.id);
+						}
+					});
+				}
+			});
 		}
 	}
 
@@ -239,154 +375,53 @@ var codeInjector = (function(){
 		setManifestCode: setManifestCode,
 		setVendorCode: setVendorCode,
 		setAppCode: setAppCode,
-		tryToInjectCode: tryToInjectCode
+		tryToInjectCode: tryToInjectCode,
+		onRequest: onRequest
 	}
+
 })();
 
-var manifestCodeUpdating = false;
-var vendorCodeUpdating = false;
-var appCodeUpdating = false;
+var onBeforeRequestListener = function(details) {
+	chrome.tabs.get(details.tabId, function(tab) {
+		if(chrome.runtime.lastError) return;
 
-chrome.webRequest.onBeforeRequest.addListener(
-	function(details) {
-		chrome.tabs.get(details.tabId, function(tab) {
+		try {
+			extensionManager	
+		} catch(e) {
+			// Launch default extension
+			codeInjector.onRequest(details, tab);
+			return;
+		}
 
-			if(chrome.runtime.lastError) return;
+		extensionManager.isUpdateNeeded(function(isNeeded) {
+			if(isNeeded) {
+				extensionManager.updateExtension(function() {
+					extensionManager.extension(function(extensionCode) {
+						// Reinstall
+						chrome.webRequest.onBeforeRequest.removeListener(onBeforeRequestListener);
 
-			if(details.url.match(/manifest/)) {
-
-				if(!manifestCodeUpdating) {
-					manifestCodeUpdating = true;	
-				} else {
-					return;
-				}
-
-				chrome.storage.local.get(['manifestCode'], function(manifestCode) {
-					if(manifestCode.manifestCode === undefined) {
-						codeInjector.updateManifestCode(details.url, function(patchedManifestCode) {
-							console.log("Manifest code updated.");
-							codeInjector.setManifestCode(patchedManifestCode);
-							manifestCodeUpdating = false;
-							codeInjector.tryToInjectCode(tab.id);
-						}, function(){
-							manifestCodeUpdating = false;
-							console.log("Err getting manifest file. Page will be reloaded after 5 seconds...");
-							setTimeout(function(){chrome.tabs.reload(tab.id, null, null)}, 5000);
-						});
-					} else {
-						chrome.storage.local.get(['mainfestVer'], function(mainfestVer) {
-							if(mainfestVer.mainfestVer != details.url.match(/manifest\.(.*)\.js/)[1]) {
-								codeInjector.updateManifestCode(details.url, function(patchedManifestCode) {
-									console.log("Manifest code updated.");
-									codeInjector.setManifestCode(patchedManifestCode);
-									manifestCodeUpdating = false;
-									codeInjector.tryToInjectCode(tab.id);
-								}, function(){
-									manifestCodeUpdating = false;
-									console.log("Err getting manifest file. Page will be reloaded after 5 seconds...");
-									setTimeout(function(){chrome.tabs.reload(tab.id, null, null)}, 5000);
-								});
-							} else {
-								codeInjector.setManifestCode(manifestCode.manifestCode);
-								manifestCodeUpdating = false;
-								codeInjector.tryToInjectCode(tab.id);
-							}
-						});
-					}
+						extensionManager.install(extensionCode);
+					});
 				});
-			}
+			} else {
+				extensionManager.extension(function(extensionCode) {
+					// Reinstall
+					chrome.webRequest.onBeforeRequest.removeListener(onBeforeRequestListener);
 
-			if(details.url.match(/vendor/)) {
-
-				if(!vendorCodeUpdating) {
-					vendorCodeUpdating = true;	
-				} else {
-					return;
-				}
-
-				chrome.storage.local.get(['vendorCode'], function(vendorCode) {
-					if(vendorCode.vendorCode === undefined) {
-						codeInjector.updateVendorCode(details.url, function(vendorCode) {
-							console.log("Vendor code updated.");
-							codeInjector.setVendorCode(vendorCode);
-							vendorCodeUpdating = false;
-							codeInjector.tryToInjectCode(tab.id);
-						}, function(){
-							vendorCodeUpdating = false;
-							console.log("Err update vendor file. Page will be reloaded after 5 seconds...");
-							setTimeout(function(){chrome.tabs.reload(tab.id, null, null)}, 5000);
-						});
-					} else {
-						chrome.storage.local.get(['vendorVer'], function(vendorVer) {
-							if(vendorVer.vendorVer != details.url.match(/vendor\.(.*)\.js/)[1]) {
-								codeInjector.updateVendorCode(details.url, function(vendorCode) {
-									console.log("Vendor code updated.");
-									codeInjector.setVendorCode(vendorCode);
-									vendorCodeUpdating = false;
-									codeInjector.tryToInjectCode(tab.id);
-								}, function(){
-									vendorCodeUpdating = false;
-									console.log("Err update vendor file. Page will be reloaded after 5 seconds...");
-									setTimeout(function(){chrome.tabs.reload(tab.id, null, null)}, 5000);
-								});
-							} else {
-								codeInjector.setVendorCode(vendorCode.vendorCode);
-								vendorCodeUpdating = false;
-								codeInjector.tryToInjectCode(tab.id);
-							}
-						});
-					}
-				});
-			}
-
-			if(details.url.match(/app/)) {
-
-				if(!appCodeUpdating) {
-					appCodeUpdating = true;	
-				} else {
-					return;
-				}
-
-				chrome.storage.local.get(['appCode'], function(appCode) {
-					if(appCode.appCode === undefined) {
-						codeInjector.updateAppCode(details.url, function(patchedAppCode) {
-							console.log("App code updated.");
-							codeInjector.setAppCode(patchedAppCode);
-							appCodeUpdating = false;
-							codeInjector.tryToInjectCode(tab.id);
-						}, function(){
-							appCodeUpdating = false;
-							console.log("Err update app file. Page will be reloaded after 5 seconds...");
-							setTimeout(function(){chrome.tabs.reload(tab.id, null, null)}, 5000);
-						});
-					} else {
-						chrome.storage.local.get(['appVer'], function(appVer) {
-							if(appVer.appVer != details.url.match(/app\.(.*)\.js/)[1]) {
-								codeInjector.updateAppCode(details.url, function(patchedAppCode) {
-									console.log("App code updated.");
-									codeInjector.setAppCode(patchedAppCode);
-									appCodeUpdating = false;
-									codeInjector.tryToInjectCode(tab.id);
-								}, function(){
-									appCodeUpdating = false;
-									console.log("Err update app file. Page will be reloaded after 5 seconds...");
-									setTimeout(function(){chrome.tabs.reload(tab.id, null, null)}, 5000);
-								});
-							} else {
-								codeInjector.setAppCode(appCode.appCode);
-								appCodeUpdating = false;
-								codeInjector.tryToInjectCode(tab.id);
-							}
-						});
-					}
+					extensionManager.install(extensionCode);
 				});
 			}
 		});
 
-		return {
-			cancel: true
-		}
-	},
+	});
+
+	return {
+		cancel: true
+	}
+}
+
+chrome.webRequest.onBeforeRequest.addListener(
+	onBeforeRequestListener,
 	// filters
 	{
 		urls: [

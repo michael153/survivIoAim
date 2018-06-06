@@ -23,6 +23,8 @@ var menu = function(options, callbacks) {
 		var autoOpeningDoorsEnabledCheckbox = document.createElement('div');
 		var zoomRadiusManagerEnabledCheckbox = document.createElement('div');
 
+		var storeOptionsButton = document.createElement('div');
+
 		if(callbacks.particlesTransparencyCb) {
 			particlesTransparencySlider.className = "modal-settings-item slider-container";
 
@@ -258,6 +260,17 @@ var menu = function(options, callbacks) {
 			zoomRadiusManagerEnabledCheckbox.appendChild(input);
 		}
 
+		if(callbacks.storeOptionsCb) {
+			storeOptionsButton.className = "menu-option btn-darken";
+			storeOptionsButton.innerHTML = "Save options";
+
+			storeOptionsButton.addEventListener("click", function() {
+				callbacks.storeOptionsCb();
+			}, false);
+
+
+		}
+
 		cheatMenuContainer.appendChild(particlesTransparencySlider);
 		cheatMenuContainer.appendChild(ceilingTrancparencySlider);
 
@@ -273,6 +286,8 @@ var menu = function(options, callbacks) {
 		cheatMenuContainer.appendChild(autoLootEnabledCheckbox);
 		cheatMenuContainer.appendChild(autoOpeningDoorsEnabledCheckbox);
 		cheatMenuContainer.appendChild(zoomRadiusManagerEnabledCheckbox);
+
+		cheatMenuContainer.appendChild(storeOptionsButton);
 
 		document.getElementById('ui-game').appendChild(cheatMenuContainer);
 	}

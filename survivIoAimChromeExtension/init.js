@@ -1,4 +1,4 @@
-var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha, modules) {
+var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha, modules, options, extensionId) {
 	if(!exports) return;
 	
 	function findVariable(name, exports) {
@@ -22,19 +22,27 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 		}	
 	}
 
-	var options = {
-		particlesTransparency: 0.5,
-		ceilingTrancparency: 0.5,
-		fragGernadeSize: 0.31,
-		fragGernadeColor: 16711680,
-		smokeGernadeAlpha: 0.1,
-		defaultFragGernadeEnabled: false,
-		autoAimEnabled: true,
-		autoLootEnabled: true,
-		autoOpeningDoorsEnabled: true,
-		zoomRadiusManagerEnabled: true,
-		targetEnemyNicknameVisibility: true,
-		forwardFiringCoeff: 1
+	function storeOptions(extensionId, optionsObj) {
+		chrome.runtime.sendMessage(extensionId, JSON.stringify(optionsObj));
+		console.log("Storing options...");
+	}
+
+	if(!options) {
+		options = {
+			particlesTransparency: 0.5,
+			ceilingTrancparency: 0.5,
+			fragGernadeSize: 0.31,
+			fragGernadeColor: 16711680,
+			smokeGernadeAlpha: 0.1,
+			defaultFragGernadeEnabled: false,
+			autoAimEnabled: true,
+			autoLootEnabled: true,
+			autoOpeningDoorsEnabled: true,
+			zoomRadiusManagerEnabled: true,
+			targetEnemyNicknameVisibility: true,
+			forwardFiringCoeff: 1
+		}
+		storeOptions(extensionId, options);
 	}
 
 	var defsParticles = findVariable("Defs", exports);
@@ -156,6 +164,10 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 		autoAim.setForwardFiringCoeff(options.forwardFiringCoeff);
 	}
 
+	storeOptionsCb = function() {
+		storeOptions(extensionId, options);
+	}
+
 	// setInterval(function(){if(game.scope && game.scope.activePlayer){
 	// 	console.log(game.scope);console.log(exports);
 	// }}, 2000);
@@ -252,7 +264,9 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 		
 		autoLootEnableCb: autoLootEnableCb,
 		autoOpeningDoorsEnableCb: autoOpeningDoorsEnableCb,
-		zoomRadiusManagerEnableCb: zoomRadiusManagerEnableCb
+		zoomRadiusManagerEnableCb: zoomRadiusManagerEnableCb,
+
+		storeOptionsCb: storeOptionsCb
 	});
 
 	var lShiftKeyListener = {

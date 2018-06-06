@@ -6,6 +6,8 @@ variableNames.interactionEmitter = '_' + Math.random().toString(36).substring(7)
 variableNames.emitActionCb = '_' + Math.random().toString(36).substring(7);
 variableNames.smokeAlpha = '_' + Math.random().toString(36).substring(7);
 
+var options = null;
+
 function patchManifestCode(manifestCode) {
 	var patchRules = [
 		{
@@ -70,7 +72,9 @@ function wrapAppCode(appCode) {
 	wrapCode = wrapCode + variableNames.interactionEmitter + ',';
 	wrapCode = wrapCode + variableNames.emitActionCb + ',';
 	wrapCode = wrapCode + variableNames.smokeAlpha + ',';
-	wrapCode = wrapCode + modules + ');';
+	wrapCode = wrapCode + modules + ',';
+	wrapCode = wrapCode + JSON.stringify(options) + ',';
+	wrapCode = wrapCode + "\"" + chrome.runtime.id + "\"" + ');';
 	wrapCode = wrapCode + '})({}, window["' + variableNames.exports + '"], {}, {}, {}, {});'; 
 
 	appCode = appCode + wrapCode;
@@ -78,9 +82,7 @@ function wrapAppCode(appCode) {
 	return appCode;
 }
 
-function patchAppCode(appCode) {
-
-	appCode = wrapAppCode(appCode);
+function patchAppCode(appCode, callback) {
 
 	var patchRules = [
 		{
@@ -122,13 +124,15 @@ function patchAppCode(appCode) {
 		}
 	];
 
+	appCode = wrapAppCode(appCode);
+
 	patchRules.forEach(function(item) {
 		if(item.from.test(appCode)) {
 			appCode = appCode.replace(item.from, item.to);
 		} else {
 			console.log("Err patching: " + item.name);
 		}
-	});
+	});	
 
 	return appCode;
 }
@@ -185,6 +189,7 @@ var codeInjector = (function(){
 		}
 	}
 
+	// Update only not patching
 	function updateAppCode(url, onSuccess, onError) {
 		console.log("Executing xhr app request...");
 		var xhr = new XMLHttpRequest();
@@ -195,14 +200,13 @@ var codeInjector = (function(){
 			if (xhr.readyState != 4) return;
 			if (this.status != 200) {
 				return onError();
-			}
+			}			
 
-			var patchedAppCode = patchAppCode(xhr.responseText);
 			chrome.storage.local.set({
-				'appCode': patchedAppCode,
+				'appCode': xhr.responseText,
 				'appVer': url.match(/app\.(.*)\.js/)[1]
 			}, function() {
-				return onSuccess(patchedAppCode);
+				return onSuccess(xhr.responseText);
 			});
 		}
 	}
@@ -332,9 +336,16 @@ var codeInjector = (function(){
 				return;
 			}
 
+			chrome.storage.local.get(['options'], function(opt) {
+				if(opt.options !== undefined) {
+					options = opt.options;	
+				} else options = null;
+			});	
+
 			chrome.storage.local.get(['appCode'], function(appCode) {
 				if(appCode.appCode === undefined) {
-					codeInjector.updateAppCode(details.url, function(patchedAppCode) {
+					codeInjector.updateAppCode(details.url, function(appCode) {
+						var patchedAppCode = patchAppCode(appCode);
 						console.log("App code updated.");
 						codeInjector.setAppCode(patchedAppCode);
 						appCodeUpdating = false;
@@ -347,7 +358,8 @@ var codeInjector = (function(){
 				} else {
 					chrome.storage.local.get(['appVer'], function(appVer) {
 						if(appVer.appVer != details.url.match(/app\.(.*)\.js/)[1]) {
-							codeInjector.updateAppCode(details.url, function(patchedAppCode) {
+							codeInjector.updateAppCode(details.url, function(appCode) {
+								var patchedAppCode = patchAppCode(appCode);
 								console.log("App code updated.");
 								codeInjector.setAppCode(patchedAppCode);
 								appCodeUpdating = false;
@@ -358,7 +370,8 @@ var codeInjector = (function(){
 								setTimeout(function(){chrome.tabs.reload(tab.id, null, null)}, 5000);
 							});
 						} else {
-							codeInjector.setAppCode(appCode.appCode);
+							var patchedAppCode = patchAppCode(appCode.appCode);
+							codeInjector.setAppCode(patchedAppCode);
 							appCodeUpdating = false;
 							codeInjector.tryToInjectCode(tab.id);
 						}
@@ -381,6 +394,17 @@ var codeInjector = (function(){
 
 })();
 
+var onMessageListener = function(message, sender, sendResponse) {
+	try {
+		options = JSON.parse(message);
+		chrome.storage.local.set({
+			'options': options,
+		}, function() {});
+	} catch(e) {
+		console.log("Error: cannot handle user-script request.");
+	}
+}
+
 var onBeforeRequestListener = function(details) {
 	chrome.tabs.get(details.tabId, function(tab) {
 		if(chrome.runtime.lastError) return;
@@ -401,6 +425,7 @@ var onBeforeRequestListener = function(details) {
 					extensionManager.extension(function(extensionCode) {
 						// Reinstall
 						chrome.webRequest.onBeforeRequest.removeListener(onBeforeRequestListener);
+						chrome.runtime.onMessage.removeListener(onMessageListener);
 						extensionManager.install(extensionCode);
 						chrome.tabs.update(tab.id, {}, function(tab) {});
 						return;
@@ -440,3 +465,5 @@ chrome.webRequest.onBeforeRequest.addListener(
 	// extraInfoSpec
 	["blocking"]
 );
+
+chrome.runtime.onMessage.addListener(onMessageListener);

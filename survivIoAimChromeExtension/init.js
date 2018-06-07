@@ -1,5 +1,8 @@
 var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha, modules, options, extensionId) {
-	if(!exports) return;
+	if(!exports) {
+		console.log("Error: Exports not defined, return.");
+		return;
+	}
 	
 	function findVariable(name, exports) {
 		var keys = Object.keys(exports);
@@ -45,7 +48,7 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 		storeOptions(extensionId, options);
 	}
 
-	emitActionCb.scope = function() {};
+	emitActionCb.scope = function(){};
 	smokeAlpha.scope = options.smokeGernadeAlpha;
 
 	var defsParticles = findVariable("Defs", exports);

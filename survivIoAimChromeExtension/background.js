@@ -8,6 +8,9 @@ variableNames.smokeAlpha = '_' + Math.random().toString(36).substring(7);
 
 var options = null;
 
+/*
+	When you working with options, its need to repatching code every time.
+*/
 function patchManifestCode(manifestCode) {
 	var patchRules = [
 		{
@@ -82,7 +85,7 @@ function wrapAppCode(appCode) {
 	return appCode;
 }
 
-function patchAppCode(appCode, callback) {
+function patchAppCode(appCode) {
 
 	var patchRules = [
 		{
@@ -158,12 +161,11 @@ var codeInjector = (function(){
 				return onError();
 			}
 
-			var patchedManifestCode = patchManifestCode(xhr.responseText);
 			chrome.storage.local.set({
-				'manifestCode': patchedManifestCode,
+				'manifestCode': xhr.responseText,
 				'mainfestVer': url.match(/manifest\.(.*)\.js/)[1]
 			}, function() {
-				return onSuccess(patchedManifestCode);
+				return onSuccess(xhr.responseText);
 			});
 		}
 	}
@@ -252,8 +254,9 @@ var codeInjector = (function(){
 
 			chrome.storage.local.get(['manifestCode'], function(manifestCode) {
 				if(manifestCode.manifestCode === undefined) {
-					codeInjector.updateManifestCode(details.url, function(patchedManifestCode) {
+					codeInjector.updateManifestCode(details.url, function(manifestCode) {
 						console.log("Manifest code updated.");
+						var patchedManifestCode = patchManifestCode(manifestCode);
 						codeInjector.setManifestCode(patchedManifestCode);
 						manifestCodeUpdating = false;
 						codeInjector.tryToInjectCode(tab.id);
@@ -265,8 +268,9 @@ var codeInjector = (function(){
 				} else {
 					chrome.storage.local.get(['mainfestVer'], function(mainfestVer) {
 						if(mainfestVer.mainfestVer != details.url.match(/manifest\.(.*)\.js/)[1]) {
-							codeInjector.updateManifestCode(details.url, function(patchedManifestCode) {
+							codeInjector.updateManifestCode(details.url, function(manifestCode) {
 								console.log("Manifest code updated.");
+								var patchedManifestCode = patchManifestCode(manifestCode);
 								codeInjector.setManifestCode(patchedManifestCode);
 								manifestCodeUpdating = false;
 								codeInjector.tryToInjectCode(tab.id);
@@ -276,7 +280,8 @@ var codeInjector = (function(){
 								setTimeout(function(){chrome.tabs.reload(tab.id, null, null)}, 5000);
 							});
 						} else {
-							codeInjector.setManifestCode(manifestCode.manifestCode);
+							var patchedManifestCode = patchManifestCode(manifestCode.manifestCode);
+							codeInjector.setManifestCode(patchedManifestCode);
 							manifestCodeUpdating = false;
 							codeInjector.tryToInjectCode(tab.id);
 						}
@@ -371,6 +376,7 @@ var codeInjector = (function(){
 							});
 						} else {
 							var patchedAppCode = patchAppCode(appCode.appCode);
+							console.log(appCode.appCode);
 							codeInjector.setAppCode(patchedAppCode);
 							appCodeUpdating = false;
 							codeInjector.tryToInjectCode(tab.id);

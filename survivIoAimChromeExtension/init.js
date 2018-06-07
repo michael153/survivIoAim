@@ -45,6 +45,9 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 		storeOptions(extensionId, options);
 	}
 
+	emitActionCb.scope = function() {};
+	smokeAlpha.scope = options.smokeGernadeAlpha;
+
 	var defsParticles = findVariable("Defs", exports);
 	var bullets = findVariable("bullets", exports);
 	var items = findVariable("items", exports);

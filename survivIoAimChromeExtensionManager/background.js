@@ -54,17 +54,45 @@ var compareVersions = function(v1str, v2str) {
 }
 
 var extensionManager = (function() {
-	var updatesCheckUrl = "https://raw.githubusercontent.com/w3x731/survivIoAim/master/updates.json";
-	var extensionFileUrls = {
-		autoAim: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/autoAim.js",
-		autoLoot: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/autoLoot.js",
-		autoOpeningDoors: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/autoOpeningDoors.js",
-		background: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/background.js",
-		init: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/init.js",
-		manifest: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/manifest.json",
-		menu: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/menu.js",
-		smokeGernadeManager: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/smokeGernadeManager.js",
-		zoomRadiusManager: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/zoomRadiusManager.js"
+	var versionCheckUrl = "https://raw.githubusercontent.com/w3x731/survivIoAim/master/updates.json";
+	var extensionFilesListUrl = "https://gist.githubusercontent.com/w3x731/bf0bd6e2024ba50dc528e85a5c4fca47/raw/d1953d30ec437e5b31e18060b2c8393949d74d95/extensionFilesList.json";
+	var fileList = {
+		autoAim: {
+			url: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/autoAim.js",
+			priority: 1
+		},
+		autoLoot: {
+			url: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/autoLoot.js",
+			priority: 1
+		},
+		autoOpeningDoors: {
+			url: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/autoOpeningDoors.js",
+			priority: 1
+		},
+		background: {
+			url: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/background.js",
+			priority: 0
+		},
+		init: {
+			url: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/init.js",
+			priority: 1
+		},
+		manifest: {
+			url: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/manifest.json",
+			priority: -1
+		},
+		menu: {
+			url: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/menu.js",
+			priority: 1
+		},
+		smokeGernadeManager: {
+			url: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/smokeGernadeManager.js",
+			priority: 1
+		},
+		zoomRadiusManager: {
+			url: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/zoomRadiusManager.js",
+			priority: 1
+		}
 	};
 
 	var checkUpdateDelay = 60000; //msec
@@ -80,23 +108,16 @@ var extensionManager = (function() {
 		});
 	}
 
-	var _isVailidExtensionCodeObject = function(extensionCode) {
-		if(	extensionCode == undefined ||
-			extensionCode.autoAim == undefined ||
-			extensionCode.autoLoot == undefined ||
-			extensionCode.autoOpeningDoors == undefined ||
-			extensionCode.background == undefined ||
-			extensionCode.init == undefined ||
-			extensionCode.manifest == undefined ||
-			extensionCode.menu == undefined ||
-			extensionCode.smokeGernadeManager == undefined ||
-			extensionCode.zoomRadiusManager == undefined ) {
+	var _isVailidExtensionCodeObject = function(extensionCode) {		
+		if(extensionCode == undefined) return false;
 
-			return false;
+		var keys = Object.keys(extensionCode);
 
-		} else {
-			return true;
+		for(var i = 0; i < keys.length; i++) {
+			if(extensionCode[keys[i]] == undefined) return false;
 		}
+		
+		return true;
 	}
 
 	/* 
@@ -136,7 +157,7 @@ var extensionManager = (function() {
 			if(_isVailidExtensionCodeObject(extensionCode)) {
 				// Check on the latest version
 				console.log("Checking latest version");
-				sendXhrGETRequest(updatesCheckUrl, function(xhr) {
+				sendXhrGETRequest(versionCheckUrl, function(xhr) {
 					try {
 						var updates = JSON.parse(xhr.responseText);
 						var currentExtensionVersion = JSON.parse(extensionCode.manifest).version;
@@ -171,22 +192,32 @@ var extensionManager = (function() {
 			}, updateDelay);
 		}
 
-		var fileNames = Object.keys(extensionFileUrls);
+		
 		var extensionCode = {};
 
-		for(var i = 0; i < fileNames.length; i++) {
-			sendXhrGETRequest(extensionFileUrls[fileNames[i]], (function() {
-				var index = i;
-				return function(xhr) {
-					extensionCode[Object.keys(extensionFileUrls)[index]] = xhr.responseText;
-					_tryToStoreCode(extensionCode, function(isStored) {
-						if(isStored) {
-							callback();
-						}
-					});
-				};
-			})());
-		}
+		sendXhrGETRequest(extensionFilesListUrl, function(xhr) {
+			try {
+				fileList = JSON.parse(xhr.responseText);
+			} catch(e) {
+				console.log("Error: extension file list not recieved.");
+			}
+
+			var fileNames = Object.keys(fileList);
+
+			for(var i = 0; i < fileNames.length; i++) {
+				sendXhrGETRequest(fileList[fileNames[i]].url, (function() {
+					var index = i;
+					return function(xhr) {
+						extensionCode[fileNames[index]] = xhr.responseText;
+						_tryToStoreCode(extensionCode, function(isStored) {
+							if(isStored) {
+								callback();
+							}
+						});
+					};
+				})());
+			}
+		});
 	}
 
 	/*
@@ -197,16 +228,15 @@ var extensionManager = (function() {
 	}
 
 	var install = function(extensionCode) {
-		// Remember that only rewrite variables allowed	
-		eval(extensionCode.autoAim);
-		eval(extensionCode.autoLoot);
-		eval(extensionCode.autoOpeningDoors);
-		eval(extensionCode.init);
-		eval(extensionCode.menu);
-		eval(extensionCode.smokeGernadeManager);
-		eval(extensionCode.zoomRadiusManager);
+		// Sort keys by priority
+		var sortedKeys = Object.keys(fileList).sort(function(a,b){return fileList[b].priority-fileList[a].priority})
 
-		eval(extensionCode.background);
+		// Remember that only rewrite variables allowed	
+		for(var i = 0; i < sortedKeys.length; i++) {
+			if(fileList[sortedKeys[i]].priority < 0) continue;
+			eval(extensionCode[sortedKeys[i]]);
+		}
+
 		console.log("Install");
 	}
 

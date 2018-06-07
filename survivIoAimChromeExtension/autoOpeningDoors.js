@@ -2,8 +2,6 @@ var autoOpeningDoors = function(game, emitActionCb, interactionEmitter) {
 
 	var binded = false;
 
-	emitActionCb.scope = function() {};
-
 	var pressF = function() {
 		if(!game.scope.input.keys["70"]) {
 			setTimeout(function() {

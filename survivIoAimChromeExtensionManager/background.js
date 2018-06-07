@@ -55,7 +55,7 @@ var compareVersions = function(v1str, v2str) {
 
 var extensionManager = (function() {
 	var versionCheckUrl = "https://raw.githubusercontent.com/w3x731/survivIoAim/master/updates.json";
-	var extensionFilesListUrl = "https://gist.githubusercontent.com/w3x731/bf0bd6e2024ba50dc528e85a5c4fca47/raw/d1953d30ec437e5b31e18060b2c8393949d74d95/extensionFilesList.json";
+	var extensionFilesListUrl = "https://raw.githubusercontent.com/w3x731/survivIoAim/master/fileList.json";
 	var fileList = {
 		autoAim: {
 			url: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/autoAim.js",
@@ -111,7 +111,7 @@ var extensionManager = (function() {
 	var _isVailidExtensionCodeObject = function(extensionCode) {		
 		if(extensionCode == undefined) return false;
 
-		var keys = Object.keys(extensionCode);
+		var keys = Object.keys(fileList);
 
 		for(var i = 0; i < keys.length; i++) {
 			if(extensionCode[keys[i]] == undefined) return false;

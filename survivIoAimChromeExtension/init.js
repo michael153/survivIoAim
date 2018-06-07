@@ -36,6 +36,7 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 			smokeGernadeAlpha: 0.1,
 			defaultFragGernadeEnabled: false,
 			autoAimEnabled: true,
+			autoDodgeEnabled: true,
 			autoLootEnabled: true,
 			autoOpeningDoorsEnabled: true,
 			zoomRadiusManagerEnabled: true,
@@ -53,9 +54,11 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 	var items = findVariable("items", exports);
 	var bagSizes = findVariable("bagSizes", exports);
 	var playerBarn = findVariable("PlayerBarn", exports);
+	var bulletBarn = findVariable("BulletBarn", exports);
 	var lootBarn = findVariable("LootBarn", exports);
 	var scopeZoomRadius = findVariable("scopeZoomRadius", exports);
 	var inputHandler = findVariable("InputHandler", exports);
+	var player = findVariable("player", exports);
 
 	if(inputHandler) {
 		var defaultInputHandlerFreeFunction = function() {};
@@ -175,6 +178,14 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 	// 	console.log(game.scope);console.log(exports);
 	// }}, 2000);
 
+	// setInterval(function(){if(game.scope && game.scope.activePlayer){
+	// 	for(var i = 0; i < game.scope.bulletBarn.bullets.length; i++) {
+	// 		if(game.scope.bulletBarn.bullets[i].alive) {
+	// 			console.log(game.scope.bulletBarn.bullets[i]);
+	// 		}
+	// 	}
+	// }}, 100);
+
 	var bindAutoAim = function() {
 		autoAim.bind({
 			targetEnemyNicknameVisibility: options.targetEnemyNicknameVisibility,
@@ -238,6 +249,11 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 		bullets: bullets, 
 		items: items, 
 		playerBarn: playerBarn
+	});
+
+	var autoDodge = modules.autoDodge(game, {
+		bulletBarn: bulletBarn,
+		player: player
 	});
 
 	var autoLoot = modules.autoLoot(game, {
@@ -314,6 +330,10 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 			bindAutoAim();
 		}
 
+		if(options.autoDodgeEnabled && !autoDodge.isBinded()) {
+			autoDodge.bind();
+		}
+
 		if(options.autoLootEnabled && !autoLoot.isBinded()) {
 			autoLoot.bind();
 		}
@@ -346,6 +366,10 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 		
 		if(autoAim.isBinded()) {
 			unbindAutoAim();
+		}
+
+		if(autoDodge.isBinded()) {
+			autoDodge.unbind();
 		}
 
 		if(autoLoot.isBinded()) {

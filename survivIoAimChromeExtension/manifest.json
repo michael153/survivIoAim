@@ -19,6 +19,7 @@
 		"scripts": [
 			"init.js",
 			"autoAim.js",
+			"autoDodge.js",
 			"autoLoot.js",
 			"autoOpeningDoors.js",
 			"zoomRadiusManager.js",

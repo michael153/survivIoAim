@@ -343,7 +343,7 @@ var autoAim = function(game, variables) {
 		defaultPlayerBarnRenderFunction = playerBarn.prototype.render;
 		playerBarn.prototype.render = function(e) {
 			var playerBarnRenderContext = this;
-
+			
 			updateState(detectEnemies());
 						
 			if(state.new) {

@@ -3,7 +3,7 @@ var gernadeTimer = function(game) {
 	var binded = false;
 
 	var timerHidden = true;
-	var duration = 3;  // sec
+	var duration = 5;  // sec
 	var period = 0.1; // sec
 	var dead = true;
 
@@ -21,7 +21,7 @@ var gernadeTimer = function(game) {
 	var initTimer = function() {
 		game.scope.pieTimer.init(function onElapsed() {
 			freeTimer();
-		}, duration, "", true);
+		}, duration, "Grenade", true);
 		dead = false;
 
 		updateTimerState();

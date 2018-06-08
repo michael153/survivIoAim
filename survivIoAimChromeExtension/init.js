@@ -41,6 +41,7 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 			autoAimEnabled: true,
 			autoLootEnabled: true,
 			autoOpeningDoorsEnabled: true,
+			gernadeTimerEnabled: true,
 			zoomRadiusManagerEnabled: true,
 			targetEnemyNicknameVisibility: true,
 			forwardFiringCoeff: 1
@@ -148,7 +149,7 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 
 		smokeGernadePropertiesCb = function(alpha) {
 			options.smokeGernadeAlpha = parseFloat(alpha);
-			smokeGernadeManager.setSmokeAlpha(options.smokeGernadeAlpha);
+			smokeAlphaManager.setSmokeAlpha(options.smokeGernadeAlpha);
 		}
 
 		defaultGernadePropertiesCb = function() {
@@ -227,6 +228,16 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 		}
 	}
 
+	var gernadeTimerEnableCb = function() {
+		if(gernadeTimer.isBinded() && options.gernadeTimerEnabled) {
+			gernadeTimer.unbind();
+			options.gernadeTimerEnabled = false;
+		} else if(!gernadeTimer.isBinded() && !options.gernadeTimerEnabled) {
+			gernadeTimer.bind();
+			options.gernadeTimerEnabled = true;
+		}
+	}
+
 	var zoomRadiusManagerEnableCb = function() {
 		if(zoomRadiusManager.isBinded() && options.zoomRadiusManagerEnabled) {
 			zoomRadiusManager.unbind();
@@ -250,11 +261,13 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 
 	var autoOpeningDoors = modules.autoOpeningDoors(game, emitActionCb, interactionEmitter);
 
+	var gernadeTimer = modules.gernadeTimer(game);
+
 	var zoomRadiusManager = modules.zoomRadiusManager(game, {
 		scopeZoomRadius: scopeZoomRadius
 	});
 
-	var smokeGernadeManager = modules.smokeGernadeManager(game, smokeAlpha);
+	var smokeAlphaManager = modules.smokeAlphaManager(game, smokeAlpha);
 
 	var menu = modules.menu(options, {
 		particlesTransparencyCb: particlesTransparencyCb,
@@ -271,6 +284,7 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 		autoLootEnableCb: autoLootEnableCb,
 		autoOpeningDoorsEnableCb: autoOpeningDoorsEnableCb,
 		zoomRadiusManagerEnableCb: zoomRadiusManagerEnableCb,
+		gernadeTimerEnableCb: gernadeTimerEnableCb,
 
 		storeOptionsCb: storeOptionsCb
 	});
@@ -325,12 +339,16 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 			autoOpeningDoors.bind();
 		}
 
+		if(options.gernadeTimerEnabled && !gernadeTimer.isBinded()) {
+			gernadeTimer.bind();
+		}
+
 		if(options.zoomRadiusManagerEnabled && !zoomRadiusManager.isBinded()) {
 			zoomRadiusManager.bind();
 		}
 
-		if(!smokeGernadeManager.isBinded()) {
-			smokeGernadeManager.bind({
+		if(!smokeAlphaManager.isBinded()) {
+			smokeAlphaManager.bind({
 				smokeAlpha: options.smokeGernadeAlpha
 			});
 		}
@@ -359,12 +377,16 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 			autoOpeningDoors.unbind();
 		}
 
+		if(gernadeTimer.isBinded()) {
+			gernadeTimer.unbind();
+		}
+
 		if(zoomRadiusManager.isBinded()) {
 			zoomRadiusManager.unbind();
 		}
 
-		if(smokeGernadeManager.isBinded()) {
-			smokeGernadeManager.unbind();
+		if(smokeAlphaManager.isBinded()) {
+			smokeAlphaManager.unbind();
 		}
 	}
 

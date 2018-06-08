@@ -21,6 +21,7 @@ var menu = function(options, callbacks) {
 
 		var autoLootEnabledCheckbox = document.createElement('div');
 		var autoOpeningDoorsEnabledCheckbox = document.createElement('div');
+		var gernadeTimerEnabledCheckbox = document.createElement('div');
 		var zoomRadiusManagerEnabledCheckbox = document.createElement('div');
 
 		var storeOptionsButton = document.createElement('div');
@@ -242,6 +243,24 @@ var menu = function(options, callbacks) {
 			autoOpeningDoorsEnabledCheckbox.appendChild(input);
 		}
 
+		if(callbacks.gernadeTimerEnableCb) {
+			var description = document.createElement('p');
+			description.className = "modal-settings-checkbox-text";
+			description.innerHTML = "Gernade timer enabled";
+
+			var input = document.createElement('input');
+			input.type = "checkbox";
+			input.checked = options.gernadeTimerEnabled;
+
+			input.addEventListener("change", function() {
+				callbacks.gernadeTimerEnableCb();
+				this.checked = options.gernadeTimerEnabled;
+			}, false);
+
+			gernadeTimerEnabledCheckbox.appendChild(description);
+			gernadeTimerEnabledCheckbox.appendChild(input);
+		}		
+
 		if(callbacks.zoomRadiusManagerEnableCb) {
 			var description = document.createElement('p');
 			description.className = "modal-settings-checkbox-text";
@@ -285,6 +304,7 @@ var menu = function(options, callbacks) {
 
 		cheatMenuContainer.appendChild(autoLootEnabledCheckbox);
 		cheatMenuContainer.appendChild(autoOpeningDoorsEnabledCheckbox);
+		cheatMenuContainer.appendChild(gernadeTimerEnabledCheckbox);
 		cheatMenuContainer.appendChild(zoomRadiusManagerEnabledCheckbox);
 
 		cheatMenuContainer.appendChild(storeOptionsButton);

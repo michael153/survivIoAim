@@ -73,6 +73,10 @@ var extensionManager = (function() {
 			url: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/background.js",
 			priority: 0
 		},
+		gernadeTimer: {
+			url: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/gernadeTimer.js",
+			priority: 1
+		},
 		init: {
 			url: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/init.js",
 			priority: 1
@@ -85,8 +89,8 @@ var extensionManager = (function() {
 			url: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/menu.js",
 			priority: 1
 		},
-		smokeGernadeManager: {
-			url: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/smokeGernadeManager.js",
+		smokeAlphaManager: {
+			url: "https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAimChromeExtension/smokeAlphaManager.js",
 			priority: 1
 		},
 		zoomRadiusManager: {

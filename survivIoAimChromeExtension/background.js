@@ -51,10 +51,12 @@ function wrapAppCode(appCode) {
 	modules = modules + autoLoot + ',';
 	modules = modules + 'autoOpeningDoors:';
 	modules = modules + autoOpeningDoors + ',';
+	modules = modules + 'gernadeTimer:';
+	modules = modules + gernadeTimer + ',';
 	modules = modules + 'menu:';
 	modules = modules + menu + ',';
-	modules = modules + 'smokeGernadeManager:';
-	modules = modules + smokeGernadeManager + ',';
+	modules = modules + 'smokeAlphaManager:';
+	modules = modules + smokeAlphaManager + ',';
 	modules = modules + 'zoomRadiusManager:';
 	modules = modules + zoomRadiusManager + '}';
 

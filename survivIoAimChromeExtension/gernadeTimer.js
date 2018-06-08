@@ -3,7 +3,7 @@ var gernadeTimer = function(game) {
 	var binded = false;
 
 	var timerHidden = true;
-	var duration = 5;  // sec
+	var duration = 4.2;  // sec
 	var period = 0.1; // sec
 	var dead = true;
 

@@ -3,10 +3,20 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 		console.log("Error: Exports not defined, return.");
 		return;
 	}
+
+	console.log("Exports");
+	console.log(exports);
+	// console.log("Object.keys(exports)");
+	// console.log(Object.keys(exports));
+	// console.log("exports['1jzZ']");
+	// console.log(exports["1jzZ"]);
 	
 	function findVariable(name, exports) {
 		var keys = Object.keys(exports);
 		for(var i = 0; i < keys.length; i++) {
+			if(exports[name]) {
+				return exports[name];
+			}
 			if(exports[keys[i]].exports[name]) {
 				return exports[keys[i]].exports[name];
 			}
@@ -52,12 +62,15 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 	emitActionCb.scope = function(){};
 	smokeAlpha.scope = options.smokeGernadeAlpha;
 
+	var map = findVariable("map", exports);
 	var defsParticles = findVariable("Defs", exports);
 	var bullets = findVariable("bullets", exports);
 	var items = findVariable("items", exports);
 	var bagSizes = findVariable("bagSizes", exports);
 	var playerBarn = findVariable("PlayerBarn", exports);
+	var particleBarn = findVariable("ParticleBarn", exports);
 	var lootBarn = findVariable("LootBarn", exports);
+	var decalBarn = findVariable("DecalBarn", exports);
 	var scopeZoomRadius = findVariable("scopeZoomRadius", exports);
 	var inputHandler = findVariable("InputHandler", exports);
 
@@ -248,15 +261,21 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 		}
 	}
 
-	var autoAim = modules.autoAim(game, {
-		bullets: bullets, 
-		items: items, 
-		playerBarn: playerBarn
-	});
 
 	var autoLoot = modules.autoLoot(game, {
 		lootBarn: lootBarn,
 		bagSizes: bagSizes
+	});
+
+	var autoOpen = modules.autoOpen(game, {
+		playerBarn: playerBarn
+	});
+	autoOpen.bind();
+
+	var autoAim = modules.autoAim(game, {
+		bullets: bullets, 
+		items: items, 
+		playerBarn: playerBarn
 	});
 
 	var autoOpeningDoors = modules.autoOpeningDoors(game, emitActionCb, interactionEmitter);
@@ -327,6 +346,9 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 	var bindCheatListeners = function() {
 		addLShiftKeyListener();
 
+		if (!autoOpen.isBinded())
+			autoOpen.bind();
+
 		if(options.autoAimEnabled && !autoAim.isBinded()) {
 			bindAutoAim();
 		}
@@ -360,6 +382,10 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 
 	var unbindCheatListeners = function() {
 		removeLShiftKeyListener();
+
+		if(autoOpen.isBinded()) {
+			autoOpen.unbind();
+		}
 
 		if(menu.isBinded()) {
 			menu.unbind();

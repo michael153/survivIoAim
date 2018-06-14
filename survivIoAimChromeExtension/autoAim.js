@@ -48,6 +48,10 @@ var autoAim = function(game, variables) {
 		return theta;
 	}
 
+	var calculateDegreeAngle = function(cx, cy, ex, ey) {
+		return calculateRadianAngle(cx, cy, ex, ey) * 180 / Math.PI
+	}
+
 	var calculateDistance = function(cx, cy, ex, ey) {
 		return Math.sqrt(Math.pow((cx - ex), 2) + Math.pow((cy - ey), 2));
 	}
@@ -86,6 +90,21 @@ var autoAim = function(game, variables) {
 
 	var getMinimalDistanceIndex = function(enemyDistances) {
 		return enemyDistances.indexOf(Math.min.apply(null, enemyDistances));
+	}
+
+
+	var getMinimalAngleIndex = function(enemyRadians) {
+		var mousePos = getMousePos()
+		var selfPos = getSelfPos()
+		angleDiffs = []
+		var mouseRadians = calculateRadianAngle(selfPos.x, selfPos.y, mousePos.x, mousePos.y)
+		for(var i = 0; i < enemyRadians.length; i++) {
+			angleDiffs.push((enemyRadians[i] - mouseRadians + 4*Math.PI) % (2*Math.PI)) // [0, 2pi)
+			angleDiffs[i] = Math.min(angleDiffs[i], 2*Math.PI-angleDiffs[i]) // if angle diff is over 180deg, go around the other way
+		}
+		smallestIndex = angleDiffs.indexOf(Math.min.apply(null, angleDiffs))
+		// console.log({mouseRadians: mouseRadians, enemyRadians: enemyRadians, angleDiffs: angleDiffs, smallestIndex:smallestIndex })
+		return smallestIndex
 	}
 
 	var calculateTargetMousePosition = function(enemyPos, enemyPosTimestamp, prevEnemyPos, prevEnemyPosTimestamp, distance) {
@@ -196,6 +215,7 @@ var autoAim = function(game, variables) {
 		var enemySelfDistances = [];
 		var enemyMouseDistances = [];
 		var enemySelfRadianAngles = [];
+		var enemySelfDegreeAngles = [];
 		var detectedEnemiesKeys = Object.keys(detectedEnemies);
 
 		if(!detectedEnemiesKeys.length) {
@@ -211,14 +231,16 @@ var autoAim = function(game, variables) {
 				var selfDistance = Math.sqrt(Math.pow(selfPos.x - enemyPos.x, 2) + Math.pow(selfPos.y - enemyPos.y, 2));
 				var mouseDistance = Math.sqrt(Math.pow(mousePos.x - enemyPos.x, 2) + Math.pow(mousePos.y - enemyPos.y, 2));
 				var selfRadianAngle = calculateRadianAngle(selfPos.x, selfPos.y, enemyPos.x, enemyPos.y);
+				var selfDegreeAngle = calculateDegreeAngle(selfPos.x, selfPos.y, enemyPos.x, enemyPos.y);
 
 				enemySelfDistances.push(selfDistance);
 				enemyMouseDistances.push(mouseDistance);
 				enemySelfRadianAngles.push(selfRadianAngle);
+				enemySelfDegreeAngles.push(selfDegreeAngle);
 			}
 
-			var targetEnemyIndex = getMinimalDistanceIndex(enemyMouseDistances);
-
+			var targetEnemyIndex = getMinimalAngleIndex(enemySelfRadianAngles);
+			// console.log(enemySelfDegreeAngles)
 			state.unshift({
 				distance: enemySelfDistances[targetEnemyIndex],
 				radianAngle: enemySelfRadianAngles[targetEnemyIndex],
@@ -277,7 +299,7 @@ var autoAim = function(game, variables) {
 			}
 
 			if(((event.button === 0) || (event.button === 2)) && state.new) {
-
+				// TODO only if mouse is already within a certain angle
 				game.scope.input.mousePos = state.averageTargetMousePosition;
 				// ???
 				game.scope.input.mouseButtonOld = false;

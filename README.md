@@ -16,6 +16,8 @@ Update: If you need to temporary disable auto aim, just hold `Left shift` key.
 Update: To throw out the loot, hold `Left shift` and then click right mouse key on loot.  
 Update: Now the auto aim will aim for enemy, closest to mouse pointer [#19](https://github.com/w3x731/survivIoAim/issues/19).  
 Update: Extension with autoupdating available! Now you dont need check updates manually. Just install [survivIoAimChromeExtensionManager](https://github.com/w3x731/survivIoAim/tree/master/survivIoAimChromeExtensionManager) instead. No Chrome web store with their 5 dollars.  
+Update: Auto aim aims at the enemy whose angle from the player is the closest to the angle of the mouse from the player
+Update: Automatically breaks open boxes, lockers, etc when the player is next to them
 
 All actions you take at your own risk. The author is not responsible for the consequences of your actions.
 

@@ -28,11 +28,9 @@ var autoOpen = function(game, variables) {
 
 	var pressThree = function() {
 		if(!game.scope.input.keys["51"]) {
+			game.scope.input.keys["51"] = true;
 			setTimeout(function() {
-				game.scope.input.keys["51"] = true;
-				setTimeout(function() {
-					delete game.scope.input.keys["51"]
-				}, 50);
+				delete game.scope.input.keys["51"]
 			}, 50);
 		}
 	};

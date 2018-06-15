@@ -42,7 +42,6 @@ var autoLoot = function(game, variables) {
 		// console.log("game.scope.creator");
 		// console.log(game.scope.creator);
 		if(game.scope.lootBarn.closestLoot && game.scope.lootBarn.closestLoot.active) {
-			// console.log("game.scope.lootBarn.closestLoot.name: " + game.scope.lootBarn.closestLoot.name);
 			if(	/mm/.test(game.scope.lootBarn.closestLoot.name) ||
 				/12gauge/.test(game.scope.lootBarn.closestLoot.name) ||
 				/50AE/.test(game.scope.lootBarn.closestLoot.name) ||

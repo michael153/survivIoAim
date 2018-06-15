@@ -1,10 +1,18 @@
-var autoAim = function(game, variables) {
+var autoAim = function(game, variables, botState) {
 
 	var bullets = variables.bullets;
 	var items = variables.items;
 	var playerBarn = variables.playerBarn;
 	var binded = false;
 	var state = null;
+
+	var GLOBALSTATES = {
+		INIT: {value: 0, name: "Init", code: "I"}, 
+		AIMING: {value: 1, name: "Aiming", code: "A"}, 
+		SHOOTING: {value: 2, name: "Shooting", code: "S"}, 
+		OPENING: {value: 3, name: "Opening", code: "O"}, 
+		IDLE: {value: 3, name: "Idle", code: "Idle"}, 
+	};
 
 	if(!!!bullets || !!!items || !!! playerBarn) {
 		console.log("Cannot init autoaim");
@@ -84,7 +92,6 @@ var autoAim = function(game, variables) {
 				}
 			}
 		}
-
 		return result;
 	}
 
@@ -223,8 +230,16 @@ var autoAim = function(game, variables) {
 				state.new = false;
 				stateNewTriggered(false);
 			}
+			if (!(botState.state == GLOBALSTATES.IDLE))
+				botState.updateBotState(GLOBALSTATES.IDLE);
 			return;
 		} else {
+			// Check if the bot is already occupied with opening destructibles
+			if (botState.state == GLOBALSTATES.OPENING && !botState.shootingOverride) {
+				console.log("OVERRIDING AIM...");
+				return;
+			}
+
 			for(var i = 0; i < detectedEnemiesKeys.length; i++) {
 				var enemyPos = detectedEnemies[detectedEnemiesKeys[i]].netData.pos;
 
@@ -273,6 +288,7 @@ var autoAim = function(game, variables) {
 			}
 
 			state.new = true;
+			botState.updateBotState(GLOBALSTATES.AIMING);
 
 			return;
 		}

@@ -20,6 +20,10 @@ Update: Auto aim aims at the enemy whose angle from the player is the closest to
 Update: Automatically breaks open boxes, lockers, etc when the player is next to them
 
 All actions you take at your own risk. The author is not responsible for the consequences of your actions.
+## Planned Features
+- Auto open long boxes that spawn in mansion
+- Auto open deagle box
+- Detect if there is object between player and enemy
 
 ---
 ## Руководство на русском языке

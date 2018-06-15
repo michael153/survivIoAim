@@ -1,9 +1,17 @@
-var autoOpen = function(game, variables) {
+var autoOpen = function(game, variables, botState) {
 
 	console.log("autoOpen()...");
 
 	var binded = false;
 	var playerBarn = variables.playerBarn;
+
+	var GLOBALSTATES = {
+		INIT: {value: 0, name: "Init", code: "I"}, 
+		AIMING: {value: 1, name: "Aiming", code: "A"}, 
+		SHOOTING: {value: 2, name: "Shooting", code: "S"}, 
+		OPENING: {value: 3, name: "Opening", code: "O"}, 
+		IDLE: {value: 3, name: "Idle", code: "Idle"}, 
+	};
 
 	var STATES = {
 		INIT: 		{value: 0, name: "Init", code: "I"}, 
@@ -16,9 +24,7 @@ var autoOpen = function(game, variables) {
 	var curStateMousePos = null;
 	var curDestructibleId = null;
 
-	var updateStateMachine = function(s) {
-		console.log("Updating curState to: ");
-		console.log(s);
+	var updateAutoOpenStateMachine = function(s) {
 		curState = s;
 	}
 
@@ -41,7 +47,7 @@ var autoOpen = function(game, variables) {
 				game.scope.input.mouseButton = true;
 				setTimeout(function() {
 					delete game.scope.input.mouseButton;
-				}, 50);
+				}, 25);
 			}, 0);
 		}
 	}
@@ -76,7 +82,6 @@ var autoOpen = function(game, variables) {
 	}
 
 	var processDestructibles = function() {
-
 		if (curState == STATES.SEARCHING) {
 			// console.log("Finding Destructibles...");
 			var result = [];
@@ -87,66 +92,21 @@ var autoOpen = function(game, variables) {
 			var objectIds = Object.keys(game.scope.objectCreator.idToObj);
 			var curPos = getSelfPos();
 
-			// console.log("Current mouse pos: (" + game.scope.input.mousePos.x + ", " + game.scope.input.mousePos.y + ")");
-			// console.log("Current location: (" + curPos.x + ", " + curPos.y + ")");
-
 			for (var i = 0; i < objectIds.length; i++) {
 				var curObject = game.scope.objectCreator.idToObj[objectIds[i]];
 				var curDist = getDistance(curObject.pos, curPos);
 
-				if (curDist < 4.0) {
-					if(/crate/.test(curObject.type) && curObject.destructible && !curObject.dead) {
-						// console.log("Destructible Crate detected at position: " + curObject.pos.x + ", " + curObject.pos.y);
-						// console.log(curObject);
-						updateStateMachine(STATES.OPENING);
+				if (curDist < 4.0 && curObject.hasOwnProperty('destructible') && curObject.destructible && curObject.hasOwnProperty('dead') && !curObject.dead) {
+					if (/crate/.test(curObject.type) || /chest/.test(curObject.type) || /stand/.test(curObject.type) ||
+					   (/barrel/.test(curObject.type) && !/barrel_01/.test(curObject.type)) || /drawers/.test(curObject.type) ||
+					    /toilet/.test(curObject.type) || /deposit/.test(curObject.type) || /locker/.test(curObject.type)) {
+						// Update autoOpen's state machine to "Opening" from "Searching"
+						updateAutoOpenStateMachine(STATES.OPENING);
 						curDestructibleId = objectIds[i];
+						// Update the bot's state machine to "Opening"
+						botState.updateBotState(GLOBALSTATES.OPENING);
+
 					}
-					else if(/chest/.test(curObject.type) && !curObject.dead) {
-						// console.log("Unbroken chest detected at position: " + curObject.pos.x + ", " + curObject.pos.y);
-						// console.log(curObject);
-						updateStateMachine(STATES.OPENING);
-						curDestructibleId = objectIds[i];
-					}
-					else if(/stand/.test(curObject.type) && !curObject.dead) {
-						// console.log("Unbroken stands detected at position: " + curObject.pos.x + ", " + curObject.pos.y);
-						// console.log(curObject);
-						updateStateMachine(STATES.OPENING);
-						curDestructibleId = objectIds[i];
-					}
-					else if(/barrel/.test(curObject.type) && !/barrel_01/.test(curObject.type) && !curObject.dead) {
-						// console.log("Unbroken barrel detected at position: " + curObject.pos.x + ", " + curObject.pos.y);
-						// console.log(curObject);
-						updateStateMachine(STATES.OPENING);
-						curDestructibleId = objectIds[i];
-					}
-					else if(/drawers/.test(curObject.type) && !curObject.dead) {
-						// console.log("Unbroken drawers detected at position: " + curObject.pos.x + ", " + curObject.pos.y);
-						// console.log(curObject);
-						updateStateMachine(STATES.OPENING);
-						curDestructibleId = objectIds[i];
-					}
-					else if(/toilet/.test(curObject.type) && !curObject.dead) {
-						// console.log("Unbroken toilet detected at position: " + curObject.pos.x + ", " + curObject.pos.y);
-						// console.log(curObject);
-						updateStateMachine(STATES.OPENING);
-						curDestructibleId = objectIds[i];
-					}
-					else if(/deposit/.test(curObject.type) && !curObject.dead) {
-						// console.log("Unbroken deposit box detected at position: " + curObject.pos.x + ", " + curObject.pos.y);
-						// console.log(curObject);
-						updateStateMachine(STATES.OPENING);
-						curDestructibleId = objectIds[i];
-					}
-					else if(/locker/.test(curObject.type) && !curObject.dead) {
-						// console.log("Unbroken locker detected at position: " + curObject.pos.x + ", " + curObject.pos.y);
-						// console.log(curObject);
-						updateStateMachine(STATES.OPENING);
-						curDestructibleId = objectIds[i];
-					}
-					// else if(curObject.hasOwnProperty('destructible') && !curObject.dead) {
-					// 	console.log("Unknown object detected at position: " + curObject.pos.x + ", " + curObject.pos.y);
-					// 	console.log(curObject);
-					// }
 				}
 			}
 		}
@@ -158,19 +118,21 @@ var autoOpen = function(game, variables) {
 				if (curDist < 4.0 && curObject.hasOwnProperty('dead') && !curObject.dead) {
 					curStateMousePos = calculateMousePosition(curPos, curObject.pos);
 					game.scope.input.mousePos = calculateMousePosition(curPos, curObject.pos);
-					console.log("Breaking object...");
 					pressThree();
 					pressClick();
 				}
 				else {
 					console.log("Finished breaking...");
-					updateStateMachine(STATES.SEARCHING);
+					// Update autoOpen's state machine back to "Searching" after finishing opening a destructible
+					updateAutoOpenStateMachine(STATES.SEARCHING);
+					botState.updateBotState(GLOBALSTATES.IDLE);
 					curDestructibleId = null;
 				}
 			}
 			else {
 				console.log("Object no longer valid...");
-				updateStateMachine(STATES.SEARCHING);
+				updateAutoOpenStateMachine(STATES.SEARCHING);
+				botState.updateBotState(GLOBALSTATES.IDLE);
 				curStateMousePos = null;
 				curDestructibleId = null;
 			}
@@ -186,6 +148,7 @@ var autoOpen = function(game, variables) {
 
 		defaultPlayerBarnUpdateFunction = playerBarn.prototype.update;
 		updateStateMachine(STATES.SEARCHING);
+		botState.updateBotState(GLOBALSTATES.IDLE);
 
 		playerBarn.prototype.update = function(activeId, particleBarn, camera, map, input, audioManager, ambientSounds, emoteManagerWheelKeyTriggered, gameOver) {
 			var playerBarnUpdateContext = this;

@@ -147,7 +147,7 @@ var autoOpen = function(game, variables, botState) {
 		console.log("Binding autoOpen() to playerBarn.update()");
 
 		defaultPlayerBarnUpdateFunction = playerBarn.prototype.update;
-		updateStateMachine(STATES.SEARCHING);
+		updateAutoOpenStateMachine(STATES.SEARCHING);
 		botState.updateBotState(GLOBALSTATES.IDLE);
 
 		playerBarn.prototype.update = function(activeId, particleBarn, camera, map, input, audioManager, ambientSounds, emoteManagerWheelKeyTriggered, gameOver) {

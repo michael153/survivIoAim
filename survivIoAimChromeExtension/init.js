@@ -11,22 +11,15 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 	// console.log("exports['1jzZ']");
 	// console.log(exports["1jzZ"]);
 
-	// var GLOBALSTATES = {
-	// 	INIT: {value: 0, name: "Init", code: "I"}, 
-	// 	AIMING: {value: 1, name: "Aiming", code: "A"}, 
-	// 	SHOOTING: {value: 2, name: "Shooting", code: "S"}, 
-	// 	OPENING: {value: 3, name: "Opening", code: "O"}, 
-	// 	IDLE: {value: 3, name: "Idle", code: "Idle"}, 
-	// };
+	var GLOBALSTATES = {
+		INIT: {value: 0, name: "Init", code: "I"}, 
+		AIMING: {value: 1, name: "Aiming", code: "A"}, 
+		SHOOTING: {value: 2, name: "Shooting", code: "S"}, 
+		OPENING: {value: 3, name: "Opening", code: "O"}, 
+		IDLE: {value: 3, name: "Idle", code: "Idle"}, 
+	};
 
 	var botState = {
-		GLOBALSTATES: {
-			INIT: {value: 0, name: "Init", code: "I"}, 
-			AIMING: {value: 1, name: "Aiming", code: "A"}, 
-			SHOOTING: {value: 2, name: "Shooting", code: "S"}, 
-			OPENING: {value: 3, name: "Opening", code: "O"}, 
-			IDLE: {value: 3, name: "Idle", code: "Idle"}, 
-		};
 		state: GLOBALSTATES.INIT,
 		shootingOverride: false,
 		updateBotState: function(s) {

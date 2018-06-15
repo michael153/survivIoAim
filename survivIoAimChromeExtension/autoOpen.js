@@ -179,28 +179,28 @@ var autoOpen = function(game, variables) {
 		}
 	}
 
-	var defaultPlayerBarnRenderFunction = function(e) {};
-	var playerBarnRenderContext = {};
+	var defaultPlayerBarnUpdateFunction = function(e) {};
+	var playerBarnUpdateContext = {};
 
 	// Bind to some update function that's always running
 	var bind = function() {
 		console.log("Binding autoOpen() to playerBarn.update()");
 
-		defaultPlayerBarnRenderFunction = playerBarn.prototype.render;
+		defaultPlayerBarnUpdateFunction = playerBarn.prototype.update;
 		updateStateMachine(STATES.SEARCHING);
 
-		playerBarn.prototype.render = function(e) {
-			var playerBarnRenderContext = this;
+		playerBarn.prototype.update = function(activeId, particleBarn, camera, map, input, audioManager, ambientSounds, emoteManagerWheelKeyTriggered, gameOver) {
+			var playerBarnUpdateContext = this;
 			processDestructibles();
 
-			defaultPlayerBarnRenderFunction.call(playerBarnRenderContext, e);
+			defaultPlayerBarnUpdateFunction.call(playerBarnUpdateContext, activeId, particleBarn, camera, map, input, audioManager, ambientSounds, emoteManagerWheelKeyTriggered, gameOver);
 		};
 
 		binded = true;
 	}
 
 	var unbind = function() {
-		playerBarn.prototype.render = defaultPlayerBarnRenderFunction;
+		playerBarn.prototype.update = defaultPlayerBarnUpdateFunction;
 		binded = false;
 	}
 

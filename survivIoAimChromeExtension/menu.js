@@ -1,4 +1,4 @@
-var menu = function(options, callbacks) {
+/*var menu = function(options, callbacks) {
 	var binded = false;
 	var menuOpened = false;
 
@@ -363,4 +363,4 @@ var menu = function(options, callbacks) {
 		unbind: unbind,
 		isBinded: isBinded
 	}
-}
+}*/

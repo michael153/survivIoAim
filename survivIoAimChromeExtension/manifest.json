@@ -18,6 +18,7 @@
 	"background": {
 		"scripts": [
 			"init.js",
+			"bindManager.js",
 			"autoAim.js",
 			"autoLoot.js",
 			"autoOpen.js",

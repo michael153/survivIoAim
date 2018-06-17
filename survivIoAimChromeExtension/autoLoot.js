@@ -2,7 +2,6 @@ var autoLoot = function(game, variables) {
 
 	var lootBarn = variables.lootBarn;
 	var bagSizes = variables.bagSizes;
-	var binded = false;
 
 	if(!!!lootBarn || !!!bagSizes) {
 		console.log("Cannot init autoloot");
@@ -105,32 +104,18 @@ var autoLoot = function(game, variables) {
 		}
 	}
 
-	var defaultLootBarnUpdateFunction = function(e, t, a) {};
-	var lootBarnUpdateContext = {};
 
-	var bind = function() {
-		defaultLootBarnUpdateFunction = lootBarn.prototype.update;
-		lootBarn.prototype.update = function(e, t, a) {
-			lootBarnUpdateContext = this;
-			defaultLootBarnUpdateFunction.call(lootBarnUpdateContext, e, t, a);
-
+	var bindInjection = function() {
 			pickupLoot();
-		}
-		binded = true;
 	}
 
-	var unbind = function() {
-		lootBarn.prototype.update = defaultLootBarnUpdateFunction;
-		binded = false;
-	}
+	var preUnbind = function() {}
+	var preBind = function(){}
 
-	var isBinded = function() {
-		return binded;
-	}
 
 	return {
-		bind: bind,
-		unbind: unbind,
-		isBinded: isBinded
+		bindInjection: bindInjection,
+		preUnbind: preUnbind,
+		preBind: preBind
 	}
 }

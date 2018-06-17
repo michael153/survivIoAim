@@ -26,6 +26,7 @@ var autoAim = function(game, variables, botState) {
 
 	// Yeah i know that i can create single func with key arg
 	var pressOne = function() {
+		// console.log('pressing 1')
 		if(!game.scope.input.keys["49"]) {
 			setTimeout(function() {
 				game.scope.input.keys["49"] = true;
@@ -37,6 +38,7 @@ var autoAim = function(game, variables, botState) {
 	}
 
 	var pressTwo = function() {
+		// console.log('pressing 2')
 		if(!game.scope.input.keys["50"]) {
 			setTimeout(function() {
 				game.scope.input.keys["50"] = true;
@@ -236,7 +238,7 @@ var autoAim = function(game, variables, botState) {
 		} else {
 			// Check if the bot is already occupied with opening destructibles
 			if (botState.state == GLOBALSTATES.OPENING && !botState.shootingOverride) {
-				console.log("OVERRIDING AIM...");
+				// console.log("OVERRIDING AIM...");
 				return;
 			}
 
@@ -293,9 +295,6 @@ var autoAim = function(game, variables, botState) {
 			return;
 		}
 	}
-
-	var defaultPlayerBarnRenderFunction = function(e) {};
-	var playerBarnRenderContext = {};
 
 	var defaultBOnMouseDown = function(event) {};
 	var defaultBOnMouseMove = function(event) {};
@@ -369,9 +368,10 @@ var autoAim = function(game, variables, botState) {
 		window.removeEventListener("keyup", spaceKeyListeners.keyup);
 	}
 
-	var bind = function(opt) {
-		options.targetEnemyNicknameVisibility = opt.targetEnemyNicknameVisibility;
-		options.forwardFiringCoeff = opt.forwardFiringCoeff;
+	var preBind = function() {
+		// fuck the options
+		// options.targetEnemyNicknameVisibility = opt.targetEnemyNicknameVisibility;
+		// options.forwardFiringCoeff = opt.forwardFiringCoeff;
 
 		state = getNewState();
 
@@ -379,17 +379,6 @@ var autoAim = function(game, variables, botState) {
 		defaultBOnMouseMove = game.scope.input.bOnMouseMove;
 
 		defaultPlayerBarnRenderFunction = playerBarn.prototype.render;
-		playerBarn.prototype.render = function(e) {
-			var playerBarnRenderContext = this;
-
-			updateState(detectEnemies());
-						
-			if(state.new) {
-				game.scope.input.mousePos = state.averageTargetMousePosition;
-			}
-
-			defaultPlayerBarnRenderFunction.call(playerBarnRenderContext, e);
-		};
 
 		window.removeEventListener("mousedown", game.scope.input.bOnMouseDown);
 		window.removeEventListener("mousemove", game.scope.input.bOnMouseMove);
@@ -399,11 +388,19 @@ var autoAim = function(game, variables, botState) {
 
 		addMouseListener();
 		addSpaceKeyListener();
-
-		binded = true;		
 	}
 
-	var unbind = function() {
+	var bindInjection = function(opt) {
+		var playerBarnRenderContext = this;
+
+		updateState(detectEnemies());
+					
+		if(state.new) {
+			game.scope.input.mousePos = state.averageTargetMousePosition;
+		}			
+	}
+
+	var preUnbind = function() {
 		removeMouseListener();
 		removeSpaceKeyListener();
 
@@ -413,13 +410,7 @@ var autoAim = function(game, variables, botState) {
 		window.addEventListener("mousedown", defaultBOnMouseDown);
 		window.addEventListener("mousemove", defaultBOnMouseMove);
 
-		playerBarn.prototype.render = defaultPlayerBarnRenderFunction;
-
 		binded = false;
-	}
-
-	var isBinded = function() {
-		return binded;
 	}
 
 	var setForwardFiringCoeff = function(coeff) {
@@ -427,10 +418,9 @@ var autoAim = function(game, variables, botState) {
 	}
 
 	return {
-		bind: bind,
-		unbind: unbind,
-		isBinded: isBinded,
-
+		bindInjection: bindInjection,
+		preUnbind: preUnbind,
+		preBind: preBind,
 		setForwardFiringCoeff: setForwardFiringCoeff
 	}
 }

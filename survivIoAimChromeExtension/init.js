@@ -4,8 +4,8 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 		return;
 	}
 
-	console.log("Exports");
-	console.log(exports);
+	// console.log("Exports");
+	// console.log(exports);
 	// console.log("Object.keys(exports)");
 	// console.log(Object.keys(exports));
 	// console.log("exports['1jzZ']");
@@ -64,9 +64,7 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 			fragGernadeColor: 16711680,
 			smokeGernadeAlpha: 0.1,
 			defaultFragGernadeEnabled: false,
-			autoAimEnabled: true,
-			autoLootEnabled: true,
-			autoOpeningDoorsEnabled: true,
+			modulesEnabled: true,
 			gernadeTimerEnabled: true,
 			zoomRadiusManagerEnabled: true,
 			targetEnemyNicknameVisibility: true,
@@ -105,11 +103,6 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 		return;
 	}
 
-	var particlesTransparencyCb = null;
-	var ceilingTrancparencyCb = null;
-	var gernadePropertiesCb = null;
-	var defaultGernadePropertiesCb = null;
-	var forwardFiringCoeffCb = null;
 
 	// Default gernade properties
 	var defaultFragGernadeTint = null;
@@ -140,159 +133,23 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 		
 		defsParticles["table_02"].img.alpha = options.particlesTransparency;
 		defsParticles["table_01"].img.alpha = options.particlesTransparency;
-
-		particlesTransparencyCb = function(alpha) {
-			// Particle alpha
-			options.particlesTransparency = alpha;
-
-			defsParticles["bush_01"].img.alpha = alpha;
-			defsParticles["bush_02"].img.alpha = alpha;
-			defsParticles["bush_03"].img.alpha = alpha;
-
-			defsParticles["tree_01"].img.alpha = alpha;
-			
-			defsParticles["table_01"].img.alpha = alpha;
-			defsParticles["table_02"].img.alpha = alpha;
-		}
-
-		ceilingTrancparencyCb = function(alpha) {
-			// Ceiling alpha
-			options.ceilingTrancparency = alpha;
-
-			Object.keys(defsParticles).forEach(function(key) {
-				if(defsParticles[key].ceiling) {
-					defsParticles[key].ceiling.imgs.forEach(function(item) {
-						item.alpha = alpha;
-					});
-				}
-			});
-		}
-
-		gernadePropertiesCb = function(size, color) {
-			options.fragGernadeSize = size;
-			options.fragGernadeColor = color;
-
-			items.frag.worldImg.tint = color;
-			items.frag.worldImg.scale = size;
-		}
-
-		smokeGernadePropertiesCb = function(alpha) {
-			options.smokeGernadeAlpha = parseFloat(alpha);
-			smokeAlphaManager.setSmokeAlpha(options.smokeGernadeAlpha);
-		}
-
-		defaultGernadePropertiesCb = function() {
-			options.fragGernadeSize = defaultFragGernadeScale;
-			options.fragGernadeColor = defaultFragGernadeTint;
-
-			items.frag.worldImg.scale = defaultFragGernadeScale;
-			items.frag.worldImg.tint = defaultFragGernadeTint;
-
-			return {
-				defaultFragGernadeScale: defaultFragGernadeScale,
-				defaultFragGernadeTint: defaultFragGernadeTint
-			}
-		}
-	}
-
-	forwardFiringCoeffCb = function(coeff) {
-		options.forwardFiringCoeff = parseFloat(coeff);
-		autoAim.setForwardFiringCoeff(options.forwardFiringCoeff);
-	}
-
-	storeOptionsCb = function() {
-		storeOptions(extensionId, options);
-	}
-
-	// setInterval(function(){if(game.scope && game.scope.activePlayer){
-	// 	console.log(game.scope);console.log(exports);
-	// }}, 2000);
-
-	var bindAutoAim = function() {
-		autoAim.bind({
-			targetEnemyNicknameVisibility: options.targetEnemyNicknameVisibility,
-			forwardFiringCoeff: options.forwardFiringCoeff
-		});
-	}
-
-	var unbindAutoAim = function() {
-		autoAim.unbind();
-	}
-
-	var autoAimEnableCb = function() {
-		if(autoAim.isBinded() && options.autoAimEnabled) {
-			unbindAutoAim();
-			options.autoAimEnabled = false;
-		} else if(!autoAim.isBinded() && !options.autoAimEnabled) {
-			bindAutoAim();
-			options.autoAimEnabled = true;
-		}
-	}
-
-	var autoAimTargetEnemyVisibilityCb = function() {
-		options.targetEnemyNicknameVisibility = !options.targetEnemyNicknameVisibility;
-		if(autoAim.isBinded() && options.autoAimEnabled) {
-			unbindAutoAim();
-			bindAutoAim();
-		}
-	}
-
-	var autoLootEnableCb = function() {
-		if(autoLoot.isBinded() && options.autoLootEnabled) {
-			autoLoot.unbind();
-			options.autoLootEnabled = false;
-		} else if(!autoLoot.isBinded() && !options.autoLootEnabled) {
-			autoLoot.bind();
-			options.autoLootEnabled = true;
-		}
-	}
-
-	var autoOpeningDoorsEnableCb = function() {
-		if(autoOpeningDoors.isBinded() && options.autoOpeningDoorsEnabled) {
-			autoOpeningDoors.unbind();
-			options.autoOpeningDoorsEnabled = false;
-		} else if(!autoOpeningDoors.isBinded() && !options.autoOpeningDoorsEnabled) {
-			autoOpeningDoors.bind();
-			options.autoOpeningDoorsEnabled = true;
-		}
-	}
-
-	var gernadeTimerEnableCb = function() {
-		if(gernadeTimer.isBinded() && options.gernadeTimerEnabled) {
-			gernadeTimer.unbind();
-			options.gernadeTimerEnabled = false;
-		} else if(!gernadeTimer.isBinded() && !options.gernadeTimerEnabled) {
-			gernadeTimer.bind();
-			options.gernadeTimerEnabled = true;
-		}
-	}
-
-	var zoomRadiusManagerEnableCb = function() {
-		if(zoomRadiusManager.isBinded() && options.zoomRadiusManagerEnabled) {
-			zoomRadiusManager.unbind();
-			options.zoomRadiusManagerEnabled = false;
-		} else if(!zoomRadiusManager.isBinded() && !options.zoomRadiusManagerEnabled) {
-			zoomRadiusManager.bind();
-			options.zoomRadiusManagerEnabled = true;
-		}
 	}
 
 
-	var autoLoot = modules.autoLoot(game, {
-		lootBarn: lootBarn,
-		bagSizes: bagSizes
-	});
-
-	var autoOpen = modules.autoOpen(game, {
-		playerBarn: playerBarn
-	}, botState);
-	autoOpen.bind();
-
-	var autoAim = modules.autoAim(game, {
-		bullets: bullets, 
-		items: items, 
-		playerBarn: playerBarn
-	}, botState);
+	var bindManager = modules.bindManager([
+		modules.autoLoot(game, {
+			lootBarn: lootBarn,
+			bagSizes: bagSizes
+		}),
+		modules.autoOpen(game, {
+			playerBarn: playerBarn
+		}, botState),
+		modules.autoAim(game, {
+			bullets: bullets, 
+			items: items, 
+			playerBarn: playerBarn
+		}, botState)
+	], {lootBarn: lootBarn})
 
 	var autoOpeningDoors = modules.autoOpeningDoors(game, emitActionCb, interactionEmitter);
 
@@ -304,46 +161,18 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 
 	var smokeAlphaManager = modules.smokeAlphaManager(game, smokeAlpha);
 
-	var menu = modules.menu(options, {
-		particlesTransparencyCb: particlesTransparencyCb,
-		ceilingTrancparencyCb: ceilingTrancparencyCb,
-
-		gernadePropertiesCb: gernadePropertiesCb,
-		defaultGernadePropertiesCb: defaultGernadePropertiesCb,
-		smokeGernadePropertiesCb: smokeGernadePropertiesCb,
-
-		autoAimEnableCb: autoAimEnableCb,
-		autoAimTargetEnemyVisibilityCb: autoAimTargetEnemyVisibilityCb,
-		forwardFiringCoeffCb: forwardFiringCoeffCb,
-		
-		autoLootEnableCb: autoLootEnableCb,
-		autoOpeningDoorsEnableCb: autoOpeningDoorsEnableCb,
-		zoomRadiusManagerEnableCb: zoomRadiusManagerEnableCb,
-		gernadeTimerEnableCb: gernadeTimerEnableCb,
-
-		storeOptionsCb: storeOptionsCb
-	});
-
 	var lShiftKeyListener = {
 		keydown: function(event) {
 			if(event.which == 16) {
-				if(autoAim.isBinded()) {
-					unbindAutoAim();
-				}
-				if(autoLoot.isBinded()) {
-					autoLoot.unbind();
+				if(bindManager.isBinded()) {
+					bindManager.unbind()
 				}
 			}
 		},
 		keyup: function(event) {
 			if(event.which == 16) {
-				if(options.autoAimEnabled && !autoAim.isBinded()) {
-					bindAutoAim();
-				}
-				if(options.autoLootEnabled && !autoLoot.isBinded()) {
-					autoLoot.bind({
-						targetEnemyNicknameVisibility: options.targetEnemyNicknameVisibility
-					});
+				if(options.modulesEnabled && !bindManager.isBinded()) {
+					bindManager.bind()
 				}
 			}
 		}
@@ -362,16 +191,11 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 	var bindCheatListeners = function() {
 		addLShiftKeyListener();
 
-		if (!autoOpen.isBinded())
-			autoOpen.bind();
 
-		if(options.autoAimEnabled && !autoAim.isBinded()) {
-			bindAutoAim();
+		if(options.modulesEnabled && !bindManager.isBinded()) {
+			bindManager.bind()
 		}
 
-		if(options.autoLootEnabled && !autoLoot.isBinded()) {
-			autoLoot.bind();
-		}
 
 		if(options.autoOpeningDoorsEnabled && !autoOpeningDoors.isBinded()) {
 			autoOpeningDoors.bind();
@@ -391,29 +215,23 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 			});
 		}
 
-		if(!menu.isBinded()) {
+		/*if(!menu.isBinded()) {
 			menu.bind();
-		}
+		}*/
 	}
 
 	var unbindCheatListeners = function() {
 		removeLShiftKeyListener();
 
-		if(autoOpen.isBinded()) {
-			autoOpen.unbind();
-		}
 
-		if(menu.isBinded()) {
+		/*if(menu.isBinded()) {
 			menu.unbind();
-		}
+		}*/
 		
-		if(autoAim.isBinded()) {
-			unbindAutoAim();
+		if(bindManager.isBinded()) {
+			bindManager.unbind();
 		}
 
-		if(autoLoot.isBinded()) {
-			autoLoot.unbind();
-		}
 
 		if(autoOpeningDoors.isBinded()) {
 			autoOpeningDoors.unbind();

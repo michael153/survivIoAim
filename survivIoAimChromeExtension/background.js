@@ -1,4 +1,3 @@
-
 var variableNames = {};
 variableNames.game = '_' + Math.random().toString(36).substring(7);
 variableNames.exports = '_' + Math.random().toString(36).substring(7);
@@ -45,6 +44,9 @@ function wrapAppCode(appCode) {
 	
 	// Exporting modules from extension files
 	modules = '{';
+
+	modules = modules + 'bindManager:';
+	modules = modules + bindManager + ',';
 	modules = modules + 'autoAim:';
 	modules = modules + autoAim + ',';
 	modules = modules + 'autoOpen:';
@@ -55,8 +57,6 @@ function wrapAppCode(appCode) {
 	modules = modules + autoOpeningDoors + ',';
 	modules = modules + 'gernadeTimer:';
 	modules = modules + gernadeTimer + ',';
-	modules = modules + 'menu:';
-	modules = modules + menu + ',';
 	modules = modules + 'smokeAlphaManager:';
 	modules = modules + smokeAlphaManager + ',';
 	modules = modules + 'zoomRadiusManager:';

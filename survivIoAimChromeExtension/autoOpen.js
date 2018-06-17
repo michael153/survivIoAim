@@ -1,6 +1,6 @@
 var autoOpen = function(game, variables, botState) {
 
-	console.log("autoOpen()...");
+	// console.log("autoOpen()...");
 
 	var binded = false;
 	var playerBarn = variables.playerBarn;
@@ -33,11 +33,14 @@ var autoOpen = function(game, variables, botState) {
 	}
 
 	var pressThree = function() {
+		// console.log('pressing three')
 		if(!game.scope.input.keys["51"]) {
-			game.scope.input.keys["51"] = true;
 			setTimeout(function() {
-				delete game.scope.input.keys["51"]
-			}, 50);
+				game.scope.input.keys["51"] = true;
+				setTimeout(function() {
+					delete game.scope.input.keys["51"]
+				}, 50);
+			}, 0);
 		}
 	};
 
@@ -139,40 +142,26 @@ var autoOpen = function(game, variables, botState) {
 		}
 	}
 
-	var defaultPlayerBarnUpdateFunction = function(e) {};
-	var playerBarnUpdateContext = {};
-
 	// Bind to some update function that's always running
-	var bind = function() {
-		console.log("Binding autoOpen() to playerBarn.update()");
+	var preBind = function() {
+		// console.log("Binding autoOpen() to playerBarn.update()");
 
 		defaultPlayerBarnUpdateFunction = playerBarn.prototype.update;
 		updateAutoOpenStateMachine(STATES.SEARCHING);
 		botState.updateBotState(GLOBALSTATES.IDLE);
-
-		playerBarn.prototype.update = function(activeId, particleBarn, camera, map, input, audioManager, ambientSounds, emoteManagerWheelKeyTriggered, gameOver) {
-			var playerBarnUpdateContext = this;
-			processDestructibles();
-
-			defaultPlayerBarnUpdateFunction.call(playerBarnUpdateContext, activeId, particleBarn, camera, map, input, audioManager, ambientSounds, emoteManagerWheelKeyTriggered, gameOver);
-		};
-
-		binded = true;
+	}
+	var bindInjection = function() {
+		processDestructibles();
 	}
 
-	var unbind = function() {
-		playerBarn.prototype.update = defaultPlayerBarnUpdateFunction;
-		binded = false;
+	var preUnbind = function() {
 	}
 
-	var isBinded = function() {
-		return binded;
-	}
 
 	return {
-		bind: bind,
-		unbind: unbind,
-		isBinded: isBinded
+		bindInjection: bindInjection,
+		preBind: preBind,
+		preUnbind: preUnbind
 	}
 
 }

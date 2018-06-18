@@ -1,7 +1,5 @@
 var autoOpen = function(game, variables, botState) {
 
-	console.log("autoOpen()...");
-
 	var binded = false;
 	var playerBarn = variables.playerBarn;
 
@@ -97,6 +95,7 @@ var autoOpen = function(game, variables, botState) {
 				var curDist = getDistance(curObject.pos, curPos);
 
 				if (curDist < 4.0 && curObject.hasOwnProperty('destructible') && curObject.destructible && curObject.hasOwnProperty('dead') && !curObject.dead) {
+					// console.log(curObject);
 					if (/crate/.test(curObject.type) || /chest/.test(curObject.type) || /stand/.test(curObject.type) ||
 					   (/barrel/.test(curObject.type) && !/barrel_01/.test(curObject.type)) || /drawers/.test(curObject.type) ||
 					    /toilet/.test(curObject.type) || /deposit/.test(curObject.type) || /locker/.test(curObject.type)) {
@@ -105,7 +104,6 @@ var autoOpen = function(game, variables, botState) {
 						curDestructibleId = objectIds[i];
 						// Update the bot's state machine to "Opening"
 						botState.updateBotState(GLOBALSTATES.OPENING);
-
 					}
 				}
 			}
@@ -122,7 +120,7 @@ var autoOpen = function(game, variables, botState) {
 					pressClick();
 				}
 				else {
-					console.log("Finished breaking...");
+					// console.log("Finished breaking...");
 					// Update autoOpen's state machine back to "Searching" after finishing opening a destructible
 					updateAutoOpenStateMachine(STATES.SEARCHING);
 					botState.updateBotState(GLOBALSTATES.IDLE);

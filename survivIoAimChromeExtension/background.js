@@ -49,6 +49,8 @@ function wrapAppCode(appCode) {
 	modules = modules + autoAim + ',';
 	modules = modules + 'autoOpen:';
 	modules = modules + autoOpen + ',';
+	modules = modules + 'autoShoot:';
+	modules = modules + autoShoot + ',';
 	modules = modules + 'autoLoot:';
 	modules = modules + autoLoot + ',';
 	modules = modules + 'autoOpeningDoors:';

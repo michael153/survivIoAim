@@ -86,7 +86,8 @@ var autoAim = function(game, variables, botState) {
 			if( game.scope.objectCreator.idToObj[playerIds[i]] && 
 				(!game.scope.objectCreator.idToObj[playerIds[i]].netData.dead) && 
 				(!game.scope.objectCreator.idToObj[playerIds[i]].netData.downed) &&
-				game.scope.playerBarn.playerInfo[playerIds[i]].teamId != selfTeamId) {
+				game.scope.playerBarn.playerInfo[playerIds[i]].teamId != selfTeamId &&
+				game.scope.objectCreator.idToObj[playerIds[i]].netData.layer == game.scope.objectCreator.idToObj[selfId].netData.layer) {
 				if(playerIds[i] != selfId) {
 					result[playerIds[i]] = game.scope.objectCreator.idToObj[playerIds[i]];
 				}
@@ -235,7 +236,7 @@ var autoAim = function(game, variables, botState) {
 			return;
 		} else {
 			// Check if the bot is already occupied with opening destructibles
-			if (botState.state == GLOBALSTATES.OPENING && !botState.shootingOverride) {
+			if (botState.state.name == "Opening" && !botState.shootingOverride) {
 				console.log("OVERRIDING AIM...");
 				return;
 			}
@@ -255,6 +256,10 @@ var autoAim = function(game, variables, botState) {
 			}
 
 			var targetEnemyIndex = getMinimalAngleIndex(enemySelfRadianAngles);
+
+			// console.log("Targeted Enemy: id = " + detectedEnemiesKeys[targetEnemyIndex]);
+			// console.log(detectedEnemies[detectedEnemiesKeys[targetEnemyIndex]]);
+
 			// console.log(enemySelfDegreeAngles)
 			state.unshift({
 				distance: enemySelfDistances[targetEnemyIndex],
@@ -289,6 +294,7 @@ var autoAim = function(game, variables, botState) {
 
 			state.new = true;
 			botState.updateBotState(GLOBALSTATES.AIMING);
+			botState.targetedEnemy = detectedEnemies[detectedEnemiesKeys[targetEnemyIndex]].netData;
 
 			return;
 		}

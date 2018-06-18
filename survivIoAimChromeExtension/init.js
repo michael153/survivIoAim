@@ -4,12 +4,7 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 		return;
 	}
 
-	console.log("Exports");
-	console.log(exports);
-	// console.log("Object.keys(exports)");
-	// console.log(Object.keys(exports));
-	// console.log("exports['1jzZ']");
-	// console.log(exports["1jzZ"]);
+	console.log("Running init()...");
 
 	var GLOBALSTATES = {
 		INIT: {value: 0, name: "Init", code: "I"}, 
@@ -21,7 +16,8 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 
 	var botState = {
 		state: GLOBALSTATES.INIT,
-		shootingOverride: false,
+		shootingOverride: true,
+		targetedEnemy: null,
 		updateBotState: function(s) {
 			this.state = s;
 		}
@@ -287,6 +283,11 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 		playerBarn: playerBarn
 	}, botState);
 	autoOpen.bind();
+
+	var autoShoot = modules.autoShoot(game, {
+		particleBarn: particleBarn
+	}, botState);
+	autoShoot.bind();
 
 	var autoAim = modules.autoAim(game, {
 		bullets: bullets, 

@@ -3,6 +3,7 @@ var autoAim = function(game, variables, botState) {
 	var bullets = variables.bullets;
 	var items = variables.items;
 	var playerBarn = variables.playerBarn;
+	var decalBarn = variables.decalBarn;
 	var binded = false;
 	var state = null;
 
@@ -89,6 +90,8 @@ var autoAim = function(game, variables, botState) {
 				game.scope.playerBarn.playerInfo[playerIds[i]].teamId != selfTeamId &&
 				game.scope.objectCreator.idToObj[playerIds[i]].netData.layer == game.scope.objectCreator.idToObj[selfId].netData.layer) {
 				if(playerIds[i] != selfId) {
+					// console.log(game.scope.objectCreator.idToObj[playerIds[i]]);
+					console.log(game.scope.decalBarn);
 					result[playerIds[i]] = game.scope.objectCreator.idToObj[playerIds[i]];
 				}
 			}
@@ -113,6 +116,39 @@ var autoAim = function(game, variables, botState) {
 		smallestIndex = angleDiffs.indexOf(Math.min.apply(null, angleDiffs))
 		// console.log({mouseRadians: mouseRadians, enemyRadians: enemyRadians, angleDiffs: angleDiffs, smallestIndex:smallestIndex })
 		return smallestIndex
+	}
+
+	var getOptimalComprehensiveScoreIndex = function(enemyDistances, enemyRadians, enemyHealths) {
+		var mousePos = getMousePos()
+		var selfPos = getSelfPos()
+		angleDiffs = []
+		normedEnemyDistances = enemyDistances;
+		normedEnemyHealths = enemyHealths;
+		var mouseRadians = calculateRadianAngle(selfPos.x, selfPos.y, mousePos.x, mousePos.y)
+		for(var i = 0; i < enemyRadians.length; i++) {
+			angleDiffs.push((enemyRadians[i] - mouseRadians + 4*Math.PI) % (2*Math.PI)) // [0, 2pi)
+			angleDiffs[i] = Math.min(angleDiffs[i], 2*Math.PI-angleDiffs[i]) // if angle diff is over 180deg, go around the other way
+		}
+		normedAngleDiffs = angleDiffs;
+		maxAngle = Math.max.apply(null, angleDiffs);
+		for(var i = 0; i < angleDiffs.length; i++) {
+			normedAngleDiffs[i] = (maxAngle - angleDiffs[i])/(maxAngle + 0.01); // + 0.01 to prevent divide by 0 error
+		}
+		maxDist = Math.max.apply(null, enemyDistances);
+		for(var i = 0; i < normedEnemyDistances.length; i++) {
+			normedEnemyDistances[i] = (maxDist - normedEnemyDistances[i])/(maxDist + 0.01);
+		}
+		maxHealth = Math.max.apply(null, enemyHealths);
+		for(var i = 0; i  < normedEnemyHealths.length; i++) {
+			normedEnemyHealths[i] = (maxHealth - normedEnemyHealths[i])/maxHealth;
+		}
+		comprehensiveScore = []
+		for(var i = 0; i < normedAngleDiffs.length; i++) {
+			comprehensiveScore.push(1.2*normedAngleDiffs[i] + 1.2*normedEnemyDistances[i] + normedEnemyHealths[i]);
+		}
+		// smallestIndex = angleDiffs.indexOf(Math.min.apply(null, angleDiffs))
+		optimalIndex = comprehensiveScore.indexOf(Math.max.apply(null, comprehensiveScore));
+		return optimalIndex;
 	}
 
 	var calculateTargetMousePosition = function(enemyPos, enemyPosTimestamp, prevEnemyPos, prevEnemyPosTimestamp, distance) {
@@ -224,6 +260,7 @@ var autoAim = function(game, variables, botState) {
 		var enemyMouseDistances = [];
 		var enemySelfRadianAngles = [];
 		var enemySelfDegreeAngles = [];
+		var enemyHealths = [];
 		var detectedEnemiesKeys = Object.keys(detectedEnemies);
 
 		if(!detectedEnemiesKeys.length) {
@@ -253,9 +290,11 @@ var autoAim = function(game, variables, botState) {
 				enemyMouseDistances.push(mouseDistance);
 				enemySelfRadianAngles.push(selfRadianAngle);
 				enemySelfDegreeAngles.push(selfDegreeAngle);
+				enemyHealths.push(100);
 			}
 
-			var targetEnemyIndex = getMinimalAngleIndex(enemySelfRadianAngles);
+			// var targetEnemyIndex = getMinimalAngleIndex(enemySelfRadianAngles);
+			var targetEnemyIndex = getOptimalComprehensiveScoreIndex(enemySelfDistances, enemySelfRadianAngles, enemyHealths);
 
 			// console.log("Targeted Enemy: id = " + detectedEnemiesKeys[targetEnemyIndex]);
 			// console.log(detectedEnemies[detectedEnemiesKeys[targetEnemyIndex]]);

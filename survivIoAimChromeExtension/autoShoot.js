@@ -2,6 +2,8 @@ var autoShoot = function(game, variables, botState) {
 
 	var binded = false;
 	var particleBarn = variables.particleBarn;
+	var bullets = variables.bullets;
+	var items = variables.items;
 
 	var GLOBALSTATES = {
 		INIT: {value: 0, name: "Init", code: "I"}, 
@@ -18,6 +20,28 @@ var autoShoot = function(game, variables, botState) {
 				setTimeout(function() {
 					delete game.scope.input.mouseButton;
 				}, 20);
+			}, 0);
+		}
+	}
+
+	var pressOne = function() {
+		if(!game.scope.input.keys["49"]) {
+			setTimeout(function() {
+				game.scope.input.keys["49"] = true;
+				setTimeout(function() {
+					delete game.scope.input.keys["49"]
+				}, 50);
+			}, 0);
+		}
+	}
+
+	var pressTwo = function() {
+		if(!game.scope.input.keys["50"]) {
+			setTimeout(function() {
+				game.scope.input.keys["50"] = true;
+				setTimeout(function() {
+					delete game.scope.input.keys["50"]
+				}, 50);
 			}, 0);
 		}
 	}
@@ -156,8 +180,27 @@ var autoShoot = function(game, variables, botState) {
 		return game.scope.activePlayer.pos;
 	}
 
-	var isFireable = function() {
+	var getDist = function(p1, p2) {
+		return Math.sqrt((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y - p2.y));
+	}
 
+	var isFireable = function(curPlayer, enemyPoint) {
+		var curWeapon = items[game.scope.activePlayer.weapType];
+		var curDist = getDist(curPlayer.netData.pos, enemyPoint.pos);
+		if ((curPlayer.curWeapIdx == 2 || curWeapon.name == "Fists")) {
+			return (curDist <= 3.0);
+		}
+		if(curWeapon.hasOwnProperty('bulletType')) {
+			var possibleDist = bullets[curWeapon.bulletType].distance;
+			if (curDist >= possibleDist) {
+				if(game.scope.activePlayer.curWeapIdx)
+					pressOne();
+				if(!game.scope.activePlayer.curWeapIdx)
+					pressTwo();
+				return false;
+			}
+		}
+		return true;
 	}
 
 	var analyzeLineOfFire = function() {
@@ -175,12 +218,11 @@ var autoShoot = function(game, variables, botState) {
 					}
 				}
 			}
-			pressClick();
+			if (isFireable(game.scope.activePlayer, enemyPoint))
+				pressClick();
 		}
 		return false;
 	}
-
-
 
 	var defaultParticleBarnUpdateFunction = function(e) {};
 	var particleBarnUpdateContext = {};

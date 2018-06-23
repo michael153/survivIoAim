@@ -22,6 +22,7 @@
 			"autoLoot.js",
 			"autoOpen.js",
 			"autoShoot.js",
+			"autoDodge.js",
 			"autoOpeningDoors.js",
 			"gernadeTimer.js",
 			"zoomRadiusManager.js",

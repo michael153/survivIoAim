@@ -84,8 +84,10 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 	var lootBarn = findVariable("LootBarn", exports);
 	var deadBodyBarn = findVariable("DeadBodyBarn", exports);
 	var decalBarn = findVariable("DecalBarn", exports);
+	var bulletBarn = findVariable("BulletBarn", exports);
 	var scopeZoomRadius = findVariable("scopeZoomRadius", exports);
 	var inputHandler = findVariable("InputHandler", exports);
+	var player = findVariable("player", exports);
 
 	if(inputHandler) {
 		var defaultInputHandlerFreeFunction = function() {};
@@ -298,6 +300,13 @@ var init = function(game, exports, interactionEmitter, emitActionCb, smokeAlpha,
 		playerBarn: playerBarn,
 		decalBarn: decalBarn
 	}, botState);
+
+	var autoDodge = modules.autoDodge(game, {
+		bulletBarn: bulletBarn,
+		playerBarn: playerBarn,
+		player: player
+	});
+	autoDodge.bind();
 
 	var autoOpeningDoors = modules.autoOpeningDoors(game, emitActionCb, interactionEmitter);
 

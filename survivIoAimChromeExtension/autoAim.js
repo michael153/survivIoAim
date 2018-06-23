@@ -3,7 +3,7 @@ var autoAim = function(game, variables, botState) {
 	var bullets = variables.bullets;
 	var items = variables.items;
 	var playerBarn = variables.playerBarn;
-	var decalBarn = variables.decalBarn;
+	// var decalBarn = variables.decalBarn;
 	var binded = false;
 	var state = null;
 
@@ -91,7 +91,7 @@ var autoAim = function(game, variables, botState) {
 				game.scope.objectCreator.idToObj[playerIds[i]].netData.layer == game.scope.objectCreator.idToObj[selfId].netData.layer) {
 				if(playerIds[i] != selfId) {
 					// console.log(game.scope.objectCreator.idToObj[playerIds[i]]);
-					console.log(game.scope.decalBarn);
+					// console.log(game.scope.decalBarn);
 					result[playerIds[i]] = game.scope.objectCreator.idToObj[playerIds[i]];
 				}
 			}
